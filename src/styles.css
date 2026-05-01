@@ -1,0 +1,1446 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+
+/* ----------------------------------------------------------
+   Design tokens — sized for iPad 11" (1194×834) primary
+   ---------------------------------------------------------- */
+:root {
+  --color-bg: #1a1614;
+  --color-surface: #25201c;
+  --color-text: #faf8f5;
+  --color-text-muted: #b8b0a8;
+  --color-text-subtle: #7a7370;
+  --color-accent: #f6a000;
+  --color-accent-2: #da7112;
+  --color-cool: #2e7cf6;
+  --color-warn: #dc2626;
+  --gradient-accent: linear-gradient(135deg, #f6a000 0%, #da7112 100%);
+  --color-divider: rgba(255, 255, 255, 0.08);
+  --color-shadow: rgba(0, 0, 0, 0.4);
+  --color-shadow-strong: rgba(0, 0, 0, 0.6);
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --type-display: 64px;
+  --type-large: 32px;
+  --type-medium: 18px;
+  --type-base: 16px;
+  --type-small: 13px;
+  --type-tiny: 11px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --motion-fast: 200ms;
+  --motion-base: 350ms;
+  --motion-slow: 600ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --topbar-h: 56px;
+  --bottom-h: 280px;
+  --modestrip-h: 150px;
+  --caption-h: 56px;
+  --control-h: 80px;
+}
+
+/* ----------------------------------------------------------
+   Reset / iPad-specific hardening
+   ---------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--type-base);
+  font-weight: 400;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  touch-action: manipulation;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+  display: block;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Kiosk is touch-only — focus rings are noise. Keep accessibility for
+   keyboard testing via :focus-visible only. */
+button:focus,
+input:focus,
+[role='button']:focus {
+  outline: none;
+}
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: var(--topbar-h) 1fr var(--bottom-h);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+/* ----------------------------------------------------------
+   Top bar
+   ---------------------------------------------------------- */
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.topbar__logo {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.lang-toggle__btn {
+  min-width: 56px;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border-radius: 999px;
+  font-size: var(--type-small);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  transition:
+    background var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+.lang-toggle__btn[aria-pressed='true'] {
+  background: var(--gradient-accent);
+  color: #1a1614;
+  box-shadow: 0 1px 6px rgba(246, 160, 0, 0.35);
+}
+
+/* ----------------------------------------------------------
+   Hero zone
+   ---------------------------------------------------------- */
+.hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.hero__stage {
+  position: relative;
+  width: min(92%, 1100px);
+  aspect-ratio: 1461 / 822;
+  /* Original photo dimensions; the painted amber hexagon on the unit is
+     the brand asset — no CSS overlay sits on top in the default shell. */
+}
+
+.hero__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ----------------------------------------------------------
+   Hexagon — overlay coordinates relative to .hero__stage.
+   Photo is cropped to 626×494 with the painted hexagon centered
+   at (86.1%, 18.2%) and ~6.55% wide. We oversize the CSS hex
+   slightly so it fully covers the painted one and our color
+   (heat amber / cool blue) is what shows.
+   ---------------------------------------------------------- */
+.hexagon {
+  position: absolute;
+  width: 7.4%;
+  aspect-ratio: 1 / 1.1547;
+  left: 86.1%;
+  top: 18.2%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 16px var(--hex-glow, rgba(246, 160, 0, 0.7)));
+  transition:
+    filter var(--motion-base) var(--ease),
+    opacity var(--motion-base) var(--ease);
+}
+
+.hexagon__core {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--hex-color, #f6a000);
+  transition: background var(--motion-base) var(--ease);
+}
+
+.hexagon[data-state='heat'] {
+  --hex-color: #f6a000;
+  --hex-glow: rgba(246, 160, 0, 0.7);
+  animation: hex-breathe-heat 4s var(--ease) infinite;
+}
+.hexagon[data-state='cool'] {
+  --hex-color: #2e7cf6;
+  --hex-glow: rgba(46, 124, 246, 0.7);
+  animation: hex-breathe-cool 2.5s var(--ease) infinite;
+}
+.hexagon[data-state='error'] {
+  --hex-color: #dc2626;
+  --hex-glow: rgba(220, 38, 38, 0.7);
+  animation: none;
+  opacity: 1;
+}
+.hexagon[data-state='off'] {
+  --hex-color: #ffffff;
+  --hex-glow: rgba(255, 255, 255, 0.2);
+  animation: none;
+  opacity: 0.8;
+  mix-blend-mode: normal;
+}
+
+@keyframes hex-breathe-heat {
+  0%,
+  100% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 10px rgba(246, 160, 0, 0.5));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 22px rgba(246, 160, 0, 0.85));
+  }
+}
+
+@keyframes hex-breathe-cool {
+  0%,
+  100% {
+    opacity: 0.75;
+    filter: drop-shadow(0 0 10px rgba(46, 124, 246, 0.5));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 22px rgba(46, 124, 246, 0.85));
+  }
+}
+
+/* ----------------------------------------------------------
+   Bottom region: caption + control + mode strip
+   ---------------------------------------------------------- */
+.bottom {
+  display: grid;
+  grid-template-rows: var(--caption-h) var(--control-h) var(--modestrip-h);
+  border-top: 1px solid var(--color-divider);
+}
+
+.caption {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  text-align: center;
+  padding: 0 var(--space-6);
+  font-size: var(--type-medium);
+  color: var(--color-text);
+  font-weight: 400;
+}
+
+.control {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  padding: 0 var(--space-6);
+}
+
+.control__placeholder {
+  color: var(--color-text-subtle);
+  font-size: var(--type-small);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------
+   Mode strip
+   ---------------------------------------------------------- */
+.modestrip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.mode-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-1);
+  min-height: 56px;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px var(--color-shadow);
+  text-align: left;
+  transition:
+    transform var(--motion-fast) var(--ease),
+    box-shadow var(--motion-fast) var(--ease),
+    background var(--motion-fast) var(--ease);
+  overflow: hidden;
+}
+
+.mode-card:active {
+  transform: scale(0.98);
+}
+
+.mode-card__index {
+  font-size: var(--type-tiny);
+  letter-spacing: 0.18em;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+}
+
+.mode-card__title {
+  font-size: var(--type-medium);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.mode-card__sub {
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.mode-card[aria-current='true'] {
+  background: var(--gradient-accent);
+  box-shadow: 0 6px 18px rgba(246, 160, 0, 0.25);
+}
+.mode-card[aria-current='true'] .mode-card__index,
+.mode-card[aria-current='true'] .mode-card__title,
+.mode-card[aria-current='true'] .mode-card__sub {
+  color: #1a1614;
+}
+.mode-card[aria-current='true'] .mode-card__sub {
+  color: rgba(26, 22, 20, 0.7);
+}
+
+/* ----------------------------------------------------------
+   Mode slot — cross-fade in/out when switching modes
+   ---------------------------------------------------------- */
+.hero,
+.caption,
+.control {
+  position: relative;
+}
+
+.mode-slot {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transition: opacity var(--motion-base) var(--ease);
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+
+.mode-slot--enter {
+  opacity: 0;
+}
+
+.mode-slot--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mode-caption {
+  font-size: var(--type-medium);
+  color: var(--color-text);
+  text-align: center;
+  padding: 0 var(--space-6);
+}
+
+.mode-control {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  align-items: center;
+  padding: 0 var(--space-6);
+}
+
+/* ----------------------------------------------------------
+   Energie hero — single connected canvas
+   The hero is a relative box. An SVG covers it edge-to-edge
+   (preserveAspectRatio="none") so SVG x/y maps 1:1 to hero
+   percentages. The photo, labels and house silhouette are
+   absolutely positioned at percentages that align with SVG
+   coordinates, so lines actually touch the photo edges.
+   ---------------------------------------------------------- */
+.energie-hero {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--color-accent);
+}
+
+.energie-hero[data-mode='kuehlen'] {
+  color: var(--color-cool);
+}
+
+.energie-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.energie-fan-lines path {
+  transition: opacity var(--motion-base) var(--ease);
+}
+
+/* Photo: dead-center horizontally, slightly above center vertically
+   to leave room for the from-air label below. Photo edges land at
+   x=37% / x=63% — same as PHOTO_LEFT_VB/PHOTO_RIGHT_VB in energie.ts. */
+.energie-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 26%;
+  aspect-ratio: 1461 / 822;
+}
+
+.energie-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.energie-hex {
+  position: absolute;
+  width: 7.4%;
+  aspect-ratio: 1 / 1.1547;
+  left: 62.77%;
+  top: 43.07%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease);
+  filter: drop-shadow(0 0 12px rgba(46, 124, 246, 0.7));
+}
+.energie-hex[data-state='cool'] {
+  opacity: 1;
+}
+
+/* Numeric labels — absolute, percentage-positioned to sit at the right
+   spot relative to the SVG canvas */
+.energie-label {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.05;
+  pointer-events: none;
+}
+.energie-label .num {
+  font-size: var(--type-display);
+  font-weight: 500;
+  line-height: 1;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.energie-label .unit {
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  margin-top: 6px;
+}
+.energie-hero[data-mode='kuehlen'] .energie-label .num {
+  background: linear-gradient(135deg, #2e7cf6 0%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* "1 kWh Strom": sits above the electricity line (which runs at y=50%),
+   horizontally centered on the line midpoint (~x=24%). */
+.energie-label--in {
+  left: 24%;
+  top: 22%;
+  transform: translateX(-50%);
+}
+.energie-label--in .num {
+  font-size: 56px;
+}
+
+/* "5.01 kWh Wärme": above the house (which sits at viewBox x=1050..1112,
+   center ~x=88% of hero). Number stacked on top of unit. */
+.energie-label--out {
+  right: 7%;
+  top: 12%;
+  text-align: center;
+}
+.energie-label--out .num {
+  font-size: 56px;
+}
+
+/* "+ 4.01 kWh aus der Luft (gratis)": below the photo, centered. */
+.energie-from-air {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  transition: opacity var(--motion-base) var(--ease);
+  pointer-events: none;
+}
+.energie-from-air .plus {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+.energie-from-air .num {
+  color: var(--color-text);
+  font-weight: 500;
+}
+.energie-hero[data-mode='kuehlen'] .energie-from-air .plus {
+  color: var(--color-cool);
+}
+
+/* ----------------------------------------------------------
+   Energie control — pill toggle + slider + ticks
+   ---------------------------------------------------------- */
+.energie-control {
+  grid-template-columns: auto 1fr;
+  gap: var(--space-5);
+  align-items: center;
+}
+
+.pill-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  height: 56px;
+}
+
+.pill-toggle__btn {
+  min-width: 100px;
+  height: 48px;
+  padding: 0 var(--space-4);
+  border-radius: 999px;
+  font-size: var(--type-small);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  transition:
+    background var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+.pill-toggle__btn[aria-pressed='true'] {
+  color: #1a1614;
+  background: var(--gradient-accent);
+  box-shadow: 0 1px 6px rgba(246, 160, 0, 0.35);
+}
+.pill-toggle__btn[data-value='kuehlen'][aria-pressed='true'] {
+  color: #ffffff;
+  background: linear-gradient(135deg, #2e7cf6 0%, #1d4ed8 100%);
+  box-shadow: 0 1px 6px rgba(46, 124, 246, 0.4);
+}
+
+/* Slider */
+.slider-wrap {
+  display: grid;
+  gap: var(--space-2);
+  align-content: center;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  outline: none;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gradient-accent);
+  border: 3px solid var(--color-bg);
+  box-shadow: 0 2px 8px rgba(246, 160, 0, 0.45);
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 3px solid var(--color-bg);
+  cursor: pointer;
+}
+
+.slider-ticks {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+
+.slider-tick {
+  font-size: var(--type-tiny);
+  letter-spacing: 0.04em;
+  color: var(--color-text-subtle);
+  text-align: center;
+  padding: var(--space-1) var(--space-2);
+  transition: color var(--motion-fast) var(--ease);
+}
+.slider-tick.is-active {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+/* ----------------------------------------------------------
+   Kosten — bills + photo + saving + tangibles, then size + CTA
+   ---------------------------------------------------------- */
+.kosten-hero {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.kosten-row--bills {
+  display: grid;
+  grid-template-columns: auto 40px 1fr 40px auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.kosten-stage {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1461 / 822;
+  margin: 0 auto;
+}
+.kosten-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.kosten-connector {
+  height: 1px;
+  width: 100%;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.3) 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+}
+
+.kosten-bill {
+  width: 200px;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 8px 20px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  font-feature-settings: 'tnum' 1;
+}
+.kosten-bill__header {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--type-tiny);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #1a1614;
+  font-weight: 500;
+}
+.kosten-bill--oil .kosten-bill__header {
+  background: linear-gradient(135deg, #da7112 0%, #a85202 100%);
+  color: #faf8f5;
+}
+.kosten-bill--hp .kosten-bill__header {
+  background: var(--gradient-accent);
+  color: #1a1614;
+}
+.kosten-bill__body {
+  padding: var(--space-3);
+  display: grid;
+  gap: 4px;
+}
+.kosten-bill__monthly {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.kosten-bill__amount {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1;
+}
+.kosten-bill__unit {
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+}
+.kosten-bill__yearly {
+  font-size: var(--type-small);
+  color: var(--color-text-subtle);
+}
+
+/* Saving headline + footnote */
+.kosten-save {
+  text-align: center;
+  display: grid;
+  gap: 2px;
+}
+.kosten-save__headline {
+  font-size: var(--type-medium);
+  font-weight: 500;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.kosten-save__sub {
+  font-size: var(--type-tiny);
+  color: var(--color-text-subtle);
+  letter-spacing: 0.04em;
+}
+
+/* Tangibles row */
+.kosten-tangibles {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+}
+.kosten-tangibles__intro {
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+}
+.kosten-tangibles__row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 720px;
+}
+.kosten-tangible {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+}
+.kosten-tangible__count {
+  font-size: 28px;
+  font-weight: 500;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+}
+.kosten-tangible__label {
+  font-size: var(--type-small);
+  color: var(--color-text);
+  font-weight: 500;
+}
+.kosten-tangible__sub {
+  font-size: var(--type-tiny);
+  color: var(--color-text-subtle);
+}
+
+/* Kosten control row: sizes left, CTA right */
+.kosten-control {
+  grid-template-columns: 1fr auto;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.kosten-sizes {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  height: 56px;
+}
+
+.kosten-size-btn {
+  min-width: 110px;
+  height: 48px;
+  padding: 0 var(--space-3);
+  border-radius: 999px;
+  font-size: var(--type-small);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  transition:
+    background var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+.kosten-size-btn[aria-pressed='true'] {
+  background: var(--gradient-accent);
+  color: #1a1614;
+  box-shadow: 0 1px 6px rgba(246, 160, 0, 0.35);
+}
+
+.kosten-cta {
+  height: 56px;
+  padding: 0 var(--space-5);
+  border-radius: 999px;
+  background: var(--gradient-accent);
+  color: #1a1614;
+  font-size: var(--type-base);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 18px rgba(246, 160, 0, 0.35);
+  transition:
+    transform var(--motion-fast) var(--ease),
+    box-shadow var(--motion-fast) var(--ease);
+}
+.kosten-cta:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(246, 160, 0, 0.35);
+}
+
+/* ----------------------------------------------------------
+   QR modal — slides up from the bottom
+   ---------------------------------------------------------- */
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.qr-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease);
+}
+
+.qr-modal__card {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-5);
+  transform: translate(-50%, calc(100% + var(--space-5)));
+  width: min(90%, 460px);
+  background: var(--color-surface);
+  border-radius: 24px;
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  text-align: center;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  transition: transform var(--motion-base) var(--ease);
+}
+
+.qr-modal--open {
+  pointer-events: auto;
+}
+.qr-modal--open .qr-modal__backdrop {
+  opacity: 1;
+}
+.qr-modal--open .qr-modal__card {
+  transform: translate(-50%, 0);
+}
+
+.qr-modal__close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.qr-modal__title {
+  font-size: var(--type-medium);
+  font-weight: 500;
+  color: var(--color-text);
+  max-width: 320px;
+}
+
+.qr-modal__code {
+  background: #ffffff;
+  padding: var(--space-3);
+  border-radius: 12px;
+  display: block;
+}
+.qr-modal__code canvas {
+  display: block;
+  width: 240px;
+  height: 240px;
+}
+
+.qr-modal__subtitle {
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+}
+
+.qr-modal__url {
+  font-size: var(--type-tiny);
+  color: var(--color-text-subtle);
+  letter-spacing: 0.04em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ----------------------------------------------------------
+   Innen — closed-loop refrigerant cycle, traveling particle,
+            bicycle-pump animation on Kompressor tap.
+   ---------------------------------------------------------- */
+.innen-hero {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--color-accent);
+}
+.innen-hero[data-mode='kuehlen'] {
+  color: var(--color-cool);
+}
+
+.innen-photo {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  transform: translate(-50%, -50%);
+  width: 28%;
+  aspect-ratio: 1461 / 822;
+  object-fit: contain;
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.innen-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.innen-stop[data-active='true'] circle {
+  fill: var(--color-accent);
+}
+.innen-hero[data-mode='kuehlen'] .innen-stop[data-active='true'] circle {
+  fill: var(--color-cool);
+}
+.innen-stop[data-active='true'] text {
+  fill: #1a1614;
+}
+
+.innen-stop-label {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: color var(--motion-base) var(--ease);
+}
+.innen-stop-label[data-active='true'] {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Traveling particle: uses the same loop as innen-loop path. */
+.innen-particle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 14px currentColor;
+  pointer-events: none;
+  /* Loop path — must match LOOP_PATH math in innen.ts.
+     We project viewBox (1200x400) coords into the actual hero size by
+     using percentage-relative units in the offset-path string. The
+     simplest way is a polygon approximation, since iOS Safari does not
+     support `path()` for offset-path on percentage units; instead we use
+     pixel coords scaled to the hero via a wrapper transform. */
+  offset-path: path('M 180 160 H 1020 C 1110 160 1110 300 1020 300 H 180 C 90 300 90 160 180 160 Z');
+  offset-rotate: 0deg;
+  animation: innen-particle 8s linear infinite;
+  /* Hero box is non-1200×400 but offset-path uses absolute units; we
+     compensate by scaling .innen-particle's container instead — see below. */
+}
+
+.innen-hero[data-mode='kuehlen'] .innen-particle {
+  animation-direction: reverse;
+}
+
+/* Wrap particle in a scale transform tied to hero size — done by setting
+   the same viewBox aspect on a CSS-only canvas: keeping the SVG at
+   preserveAspectRatio="none" stretches it, but offset-path stays in
+   absolute units, so the particle drifts off-track on different ratios.
+   Practical fix: lock particle to a fixed-position track that visually
+   lines up with the SVG by sizing the .innen-particle wrapper to match.
+   For v1 we accept slight drift on iPad mini / Pro 12.9". */
+
+@keyframes innen-particle {
+  to {
+    offset-distance: 100%;
+  }
+}
+
+/* Bicycle pump animation overlay */
+.innen-pump {
+  position: absolute;
+  transform: translate(-50%, 0);
+  width: 80px;
+  height: 140px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-base) var(--ease);
+}
+.innen-pump--open {
+  opacity: 1;
+}
+.innen-pump__piston {
+  animation: innen-pump-stroke 800ms cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  transform-origin: 50% 0;
+}
+.innen-pump__heat path {
+  opacity: 0;
+  animation: innen-pump-heat 800ms ease-in-out infinite;
+}
+.innen-pump__heat path:nth-child(1) {
+  animation-delay: 0ms;
+}
+.innen-pump__heat path:nth-child(2) {
+  animation-delay: 80ms;
+}
+.innen-pump__heat path:nth-child(3) {
+  animation-delay: 160ms;
+}
+
+@keyframes innen-pump-stroke {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(28px);
+  }
+}
+@keyframes innen-pump-heat {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+/* Innen control: 4 step pills */
+.innen-control {
+  align-items: center;
+}
+.innen-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  height: 56px;
+  margin: 0 auto;
+}
+.innen-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 130px;
+  height: 48px;
+  padding: 0 var(--space-3);
+  border-radius: 999px;
+  font-size: var(--type-small);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+  transition:
+    background var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+.innen-pill__num {
+  font-size: var(--type-tiny);
+  letter-spacing: 0.18em;
+  color: var(--color-text-subtle);
+}
+.innen-pill[aria-pressed='true'] {
+  background: var(--gradient-accent);
+  color: #1a1614;
+  box-shadow: 0 1px 6px rgba(246, 160, 0, 0.35);
+}
+.innen-pill[aria-pressed='true'] .innen-pill__num {
+  color: rgba(26, 22, 20, 0.7);
+}
+
+/* ----------------------------------------------------------
+   Kälte — frost overlay + snowflakes + photo top-left + bar chart
+   ---------------------------------------------------------- */
+.kaelte-hero {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  --frost-opacity: 0;
+  --snow-opacity: 0;
+}
+.kaelte-frost {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--frost-opacity);
+  transition: opacity var(--motion-slow) var(--ease);
+  background:
+    radial-gradient(circle at 0% 100%, rgba(190, 220, 255, 0.5), transparent 50%),
+    radial-gradient(circle at 100% 0%, rgba(190, 220, 255, 0.35), transparent 55%),
+    linear-gradient(180deg, rgba(190, 220, 255, 0.2) 0%, transparent 60%);
+  mix-blend-mode: screen;
+}
+.kaelte-snow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--snow-opacity);
+  transition: opacity var(--motion-slow) var(--ease);
+}
+.kaelte-flake {
+  position: absolute;
+  top: -10%;
+  background: rgba(220, 235, 255, 0.85);
+  border-radius: 50%;
+  filter: blur(0.4px);
+  animation-name: kaelte-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes kaelte-fall {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) translateX(20px);
+    opacity: 0.4;
+  }
+}
+
+.kaelte-photo-corner {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-4);
+  width: 26%;
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+}
+.kaelte-photo {
+  width: 100%;
+  aspect-ratio: 1461 / 822;
+  object-fit: contain;
+}
+.kaelte-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px var(--space-3);
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+  font-size: var(--type-small);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.kaelte-pill__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+.kaelte-chart {
+  position: absolute;
+  right: var(--space-5);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56%;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: rgba(26, 22, 20, 0.6);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.kaelte-chart__title {
+  font-size: var(--type-medium);
+  font-weight: 500;
+  color: var(--color-text);
+  letter-spacing: 0.02em;
+}
+.kaelte-bars {
+  display: grid;
+  gap: var(--space-3);
+}
+.kaelte-bar {
+  display: grid;
+  grid-template-columns: 140px 1fr 130px;
+  align-items: center;
+  gap: var(--space-3);
+}
+.kaelte-bar__label {
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+.kaelte-bar__track {
+  height: 18px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+.kaelte-bar__fill {
+  height: 100%;
+  border-radius: 9px;
+  transition: width var(--motion-base) var(--ease);
+}
+.kaelte-bar--hp .kaelte-bar__fill {
+  background: var(--gradient-accent);
+}
+.kaelte-bar--oil .kaelte-bar__fill {
+  background: linear-gradient(90deg, #da7112 0%, #a85202 100%);
+}
+.kaelte-bar--electric .kaelte-bar__fill {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+}
+.kaelte-bar__value {
+  font-size: var(--type-small);
+  color: var(--color-text);
+  text-align: right;
+  font-feature-settings: 'tnum' 1;
+}
+.kaelte-bar--hp .kaelte-bar__value {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+.kaelte-objection {
+  font-size: var(--type-small);
+  color: var(--color-text-subtle);
+  letter-spacing: 0.02em;
+}
+
+/* ----------------------------------------------------------
+   Geräusch — sound rings + photo + big dB number
+   ---------------------------------------------------------- */
+.geraeusch-hero {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  --ring-intensity: 0.6;
+}
+
+.geraeusch-rings {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  pointer-events: none;
+}
+.geraeusch-ring {
+  position: absolute;
+  inset: 50% 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: geraeusch-pulse 3.2s ease-out infinite;
+}
+@keyframes geraeusch-pulse {
+  0% {
+    width: 60px;
+    height: 60px;
+    opacity: calc(0.7 * var(--ring-intensity));
+  }
+  100% {
+    width: 600px;
+    height: 600px;
+    opacity: 0;
+  }
+}
+
+.geraeusch-stage {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+  width: 24%;
+  aspect-ratio: 1461 / 822;
+}
+.geraeusch-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.geraeusch-big {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+.geraeusch-big__num {
+  font-size: 96px;
+  font-weight: 500;
+  line-height: 1;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-feature-settings: 'tnum' 1;
+}
+.geraeusch-big__unit {
+  font-size: var(--type-medium);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.geraeusch-dist {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+  font-size: var(--type-small);
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------
+   Stub mode — placeholder with photo only
+   ---------------------------------------------------------- */
+.stub-hero {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.stub-stage {
+  position: relative;
+  width: min(80%, 800px);
+  aspect-ratio: 1461 / 822;
+  opacity: 0.4;
+}
+.stub-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
