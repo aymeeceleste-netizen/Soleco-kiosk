@@ -1,4 +1,5 @@
 import logoUrl from './assets/soleco-logo.svg';
+import { formatRatedKwh, ratedCoolCop, ratedHeatCop } from './data';
 import { mountEnergie } from './modes/energie';
 import { mountGeraeusch } from './modes/geraeusch';
 import { mountInnen } from './modes/innen';
@@ -6,7 +7,7 @@ import { mountKaelte } from './modes/kaelte';
 import { mountKosten } from './modes/kosten';
 import type { ModeFactory, ModeView } from './modes/_types';
 import { t } from './i18n';
-import type { KioskState, Lang, Mode } from './state';
+import type { EnergieMode, KioskState, Lang, Mode } from './state';
 import { store } from './state';
 
 const MODE_ORDER: Mode[] = ['energie', 'innen', 'kaelte', 'geraeusch', 'kosten'];
@@ -86,10 +87,10 @@ export function mountShell(root: HTMLElement): void {
     current = { view: next, mode };
   };
 
-  // Top-level state subscription: react to mode and lang changes
+  // Top-level state subscription: react to mode, lang, and energieMode changes.
   const onState = (s: KioskState): void => {
     topbar.render(s.lang);
-    modeStrip.render(s.mode, s.lang);
+    modeStrip.render(s.mode, s.lang, s.energieMode);
     if (current?.mode !== s.mode) mountMode(s.mode);
   };
   store.subscribe(onState);
@@ -177,14 +178,22 @@ function buildModeStrip() {
 
   return {
     el,
-    render(mode: Mode, lang: Lang) {
+    render(mode: Mode, lang: Lang, energieMode: EnergieMode) {
       const dict = t(lang);
       MODE_ORDER.forEach((m) => {
         const refs = cards.get(m);
         if (!refs) return;
         refs.card.setAttribute('aria-current', String(m === mode));
         refs.title.textContent = dict.modes[m].label;
-        refs.sub.textContent = dict.modes[m].sub;
+        if (m === 'energie') {
+          // Subtitle is locked to the rated value (A7/W35 heating, +30 °C
+          // placeholder for cooling — see data.ts) and toggles with the
+          // Energie heizen/kuehlen state. Same data source as the headline.
+          const rated = energieMode === 'kuehlen' ? ratedCoolCop() : ratedHeatCop();
+          refs.sub.textContent = `1 kWh → ${formatRatedKwh(rated)} kWh`;
+        } else {
+          refs.sub.textContent = dict.modes[m].sub;
+        }
       });
     },
   };

@@ -15,7 +15,12 @@ type Dict = {
     caption: string;
     captionCool: string;
     electricityIn: string;
+    outsideAirLabel: string;
     fromAir: string;
+    /** Heating below-unit caption HTML, e.g. "+ 4.01 kWh aus der Luft (gratis)" */
+    fromAirCaption: (n: string) => string;
+    /** Cooling below-unit caption HTML, e.g. "1 kWh Strom bewegt 4.30 kWh Wärme nach draussen" */
+    coolOutCaption: (n: string) => string;
     heatOut: string;
     coolOut: string;
     heizen: string;
@@ -44,11 +49,31 @@ type Dict = {
     cta: string;
   };
   innen: {
-    captionDefault: string;
-    captionPump: string;
-    stops: { 1: { name: string; desc: string }; 2: { name: string; desc: string }; 3: { name: string; desc: string }; 4: { name: string; desc: string } };
-    pumpHint: string;
-    pumpClose: string;
+    captionShort: string;
+    modeHeat: string;
+    modeCool: string;
+    showHeatFlow: string;
+    indoorAir: string;
+    outdoorAir: string;
+    brandLabel: string;
+    indoorCoil: string;
+    outdoorCoil: string;
+    expansion: string;
+    compressor: string;
+    expansionSub: string;
+    compressorSub: string;
+    heat: {
+      indoorSub1: string;
+      indoorSub2: string;
+      outdoorSub: string;
+      explainer: string;
+    };
+    cool: {
+      indoorSub1: string;
+      indoorSub2: string;
+      outdoorSub: string;
+      explainer: string;
+    };
   };
   kaelte: {
     caption: string;
@@ -89,9 +114,14 @@ const de: Dict = {
       'Wärmepumpe macht keine Wärme — sie holt sie aus der Luft. Wie eine Velopumpe rückwärts.',
     captionCool: 'Im Sommer arbeitet sie umgekehrt: Sie holt Wärme aus dem Haus.',
     electricityIn: '1 kWh Strom',
+    outsideAirLabel: 'Aussenluft',
     fromAir: 'aus der Luft (gratis)',
+    fromAirCaption: (n) =>
+      `<span class="plus">+</span> <span class="num">${n} kWh</span> aus der Luft (gratis)`,
+    coolOutCaption: (n) =>
+      `1 kWh Strom bewegt <span class="num">${n} kWh</span> Wärme nach draussen`,
     heatOut: 'kWh Wärme',
-    coolOut: 'kWh Kühlung',
+    coolOut: 'kWh Wärme abgegeben',
     heizen: 'Heizen',
     kuehlen: 'Kühlen',
     cop: 'COP',
@@ -123,16 +153,33 @@ const de: Dict = {
     close: 'Schliessen',
   },
   innen: {
-    captionDefault: 'Folge der Wärme — vier Stationen, ein geschlossener Kreis.',
-    captionPump: 'Druck macht heiss — wie eine Velopumpe.',
-    stops: {
-      1: { name: 'Aussenluft', desc: 'Selbst bei −15 °C steckt Wärme in der Luft.' },
-      2: { name: 'Verdampfer', desc: 'Das Kältemittel nimmt diese Wärme auf und verdampft.' },
-      3: { name: 'Kompressor', desc: 'Druck verdichtet das Gas — und macht es heiss.' },
-      4: { name: 'Kondensator', desc: 'Die Wärme geht ans Heizungswasser. Kreis schliesst sich.' },
+    captionShort: 'Folge der Wärme — ein geschlossener Kreis.',
+    modeHeat: 'Heizen (Winter)',
+    modeCool: 'Kühlen (Sommer)',
+    showHeatFlow: 'Wärmestrom anzeigen',
+    indoorAir: 'INNENLUFT',
+    outdoorAir: 'AUSSENLUFT',
+    brandLabel: 'SOLECO Wärmepumpe',
+    indoorCoil: 'Innenwärmetauscher',
+    outdoorCoil: 'Aussenwärmetauscher',
+    expansion: 'Expansionsventil',
+    compressor: 'Kompressor',
+    expansionSub: '(senkt den Druck)',
+    compressorSub: '(erhöht den Druck)',
+    heat: {
+      indoorSub1: '(gibt Wärme',
+      indoorSub2: 'in den Raum ab)',
+      outdoorSub: '(holt Wärme aus der Aussenluft)',
+      explainer:
+        'In der <strong>Heizfunktion</strong> entzieht das Kältemittel der kalten Aussenluft Wärme, wird vom Kompressor heiss verdichtet und gibt die Wärme im Haus ab.',
     },
-    pumpHint: 'Tippen Sie auf den Kompressor',
-    pumpClose: 'Schliessen',
+    cool: {
+      indoorSub1: '(nimmt Wärme',
+      indoorSub2: 'aus dem Raum auf)',
+      outdoorSub: '(gibt Wärme an die Aussenluft ab)',
+      explainer:
+        'Im <strong>Kühlbetrieb</strong> läuft dieselbe Maschine <em>rückwärts</em>: Das Kältemittel nimmt Wärme aus der Innenluft auf, wird verdichtet und gibt die Wärme draussen ab.',
+    },
   },
   kaelte: {
     caption: 'Funktioniert bis −25 °C. Wärmepumpe schlägt Öl und Strom bei jeder Temperatur.',
@@ -170,11 +217,16 @@ const en: Dict = {
   shellPlaceholderControl: 'Pick a mode',
   energie: {
     caption: 'A heat pump doesn’t make heat — it moves it from the air. Like a bicycle pump in reverse.',
-    captionCool: 'In summer it runs in reverse — moving heat out of the house.',
+    captionCool: 'In summer it works in reverse: it pulls heat out of the house.',
     electricityIn: '1 kWh electricity',
+    outsideAirLabel: 'Outdoor air',
     fromAir: 'from the air (free)',
+    fromAirCaption: (n) =>
+      `<span class="plus">+</span> <span class="num">${n} kWh</span> from the air (free)`,
+    coolOutCaption: (n) =>
+      `1 kWh of electricity moves <span class="num">${n} kWh</span> of heat outside`,
     heatOut: 'kWh heat',
-    coolOut: 'kWh cooling',
+    coolOut: 'kWh heat moved out',
     heizen: 'Heating',
     kuehlen: 'Cooling',
     cop: 'COP',
@@ -206,16 +258,33 @@ const en: Dict = {
     close: 'Close',
   },
   innen: {
-    captionDefault: 'Follow the heat — four stations, one closed loop.',
-    captionPump: 'Pressure makes it hot — like a bicycle pump.',
-    stops: {
-      1: { name: 'Outside air', desc: 'Even at −15 °C the air still holds heat.' },
-      2: { name: 'Evaporator', desc: 'Refrigerant absorbs the heat and turns into gas.' },
-      3: { name: 'Compressor', desc: 'Pressure squeezes the gas — and makes it hot.' },
-      4: { name: 'Condenser', desc: 'Heat passes to the water circuit. Loop closes.' },
+    captionShort: 'Follow the heat — one closed loop.',
+    modeHeat: 'Heating (winter)',
+    modeCool: 'Cooling (summer)',
+    showHeatFlow: 'Show heat flow',
+    indoorAir: 'INDOOR AIR',
+    outdoorAir: 'OUTDOOR AIR',
+    brandLabel: 'SOLECO heat pump',
+    indoorCoil: 'Indoor coil',
+    outdoorCoil: 'Outdoor coil',
+    expansion: 'Expansion valve',
+    compressor: 'Compressor',
+    expansionSub: '(drops pressure)',
+    compressorSub: '(raises pressure)',
+    heat: {
+      indoorSub1: '(releases heat',
+      indoorSub2: 'into your room)',
+      outdoorSub: '(grabs heat from outside air)',
+      explainer:
+        'In <strong>heating mode</strong>, refrigerant grabs heat from cold outdoor air, gets squeezed hot by the compressor, then drops the heat off inside the house.',
     },
-    pumpHint: 'Tap the compressor',
-    pumpClose: 'Close',
+    cool: {
+      indoorSub1: '(grabs heat',
+      indoorSub2: 'from your room)',
+      outdoorSub: '(releases heat to outside air)',
+      explainer:
+        'In <strong>cooling mode</strong>, the same machine runs <em>backwards</em>: refrigerant grabs heat from indoor air, gets squeezed hot, and dumps the heat outside.',
+    },
   },
   kaelte: {
     caption: 'Works down to −25 °C. The heat pump beats oil and electric heating at every temperature.',

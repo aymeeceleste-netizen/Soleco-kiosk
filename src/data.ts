@@ -35,6 +35,33 @@ export const COP_BY_TEMP_COOL: CopRow[] = [
 export const TEMP_STOPS_HEAT: number[] = COP_BY_TEMP_HEAT.map((r) => r.temp);
 export const TEMP_STOPS_COOL: number[] = COP_BY_TEMP_COOL.map((r) => r.temp);
 
+/**
+ * Rated test points for the Energie mode-card subtitle.
+ * Heating: A7/W35 (EN14511). Maps to the +7 °C row → 5.01.
+ * Cooling: spec calls for A35/W18, but the spec also expects the displayed
+ * subtitle to read "1 kWh → 4.3 kWh", which corresponds to our +30 °C row
+ * (4.3) rather than +35 °C (3.7). Using +30 °C until SOLECO's official
+ * EER datasheet at A35/W18 is supplied.
+ * TODO_SOLECO: confirm rated cooling point and value (line:`RATED_COOL_TEMP`).
+ */
+export const RATED_HEAT_TEMP = 7;
+export const RATED_COOL_TEMP = 30;
+
+export function ratedHeatCop(): number {
+  const row = COP_BY_TEMP_HEAT.find((r) => r.temp === RATED_HEAT_TEMP);
+  return row?.cop ?? COP_BY_TEMP_HEAT[0]!.cop;
+}
+export function ratedCoolCop(): number {
+  const row = COP_BY_TEMP_COOL.find((r) => r.temp === RATED_COOL_TEMP);
+  return row?.cop ?? COP_BY_TEMP_COOL[0]!.cop;
+}
+
+/** "1 kWh → 5 kWh" / "1 kWh → 4.3 kWh" formatting: 1 decimal, strip trailing zero. */
+export function formatRatedKwh(n: number): string {
+  const rounded = Math.round(n * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
+
 // TODO_SOLECO: confirm operating range
 export const OPERATING_RANGE_C = { min: -25, max: 40 };
 

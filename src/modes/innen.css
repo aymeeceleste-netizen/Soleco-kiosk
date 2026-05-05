@@ -1,0 +1,211 @@
+/* ============================================================
+   Innen mode (heat-pump schematic) — global CSS.
+   Inherits SOLECO :root tokens. Class prefix: .hp-*
+   The package source used data-mode="heat" / "kuehlen". Kiosk
+   uses energieMode "heizen" / "kuehlen" — selectors retargeted.
+   ============================================================ */
+
+.hp-hero {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--color-bg);
+}
+
+.hp-stage {
+  position: relative;
+  /* Cap by HEIGHT, derive width from aspect — otherwise on a wide viewport
+     width: 94% of 1900 px gives a 1100×723 stage that overflows the hero. */
+  height: min(100%, 380px);
+  width: auto;
+  aspect-ratio: 700 / 460;
+  max-width: 100%;
+}
+
+.hp-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Refrigerant blob colour transition */
+.hp-blob {
+  transition: fill var(--motion-base, 0.35s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+}
+
+/* Hex LED breathing */
+.hp-led-main,
+.hp-led-tight,
+.hp-led-wide {
+  transition: color var(--motion-base, 0.35s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+}
+.hp-hero[data-mode='heizen'] .hp-led-main,
+.hp-hero[data-mode='heizen'] .hp-led-tight,
+.hp-hero[data-mode='heizen'] .hp-led-wide {
+  animation: hp-hex-breathe-heat 4s var(--ease, cubic-bezier(0.2, 0, 0, 1)) infinite;
+}
+.hp-hero[data-mode='kuehlen'] .hp-led-main,
+.hp-hero[data-mode='kuehlen'] .hp-led-tight,
+.hp-hero[data-mode='kuehlen'] .hp-led-wide {
+  animation: hp-hex-breathe-cool 2.5s var(--ease, cubic-bezier(0.2, 0, 0, 1)) infinite;
+}
+@keyframes hp-hex-breathe-heat {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes hp-hex-breathe-cool {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Caption — gradient strong text. Capped to fit kiosk's 56 px slot.
+   ============================================================ */
+.hp-caption {
+  display: inline-block;
+  max-width: 100%;
+  font-size: var(--type-small, 13px);
+  line-height: 1.4;
+  color: var(--color-text);
+  text-align: center;
+  padding: 0 var(--space-4, 16px);
+}
+.hp-caption strong {
+  font-weight: 500;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hp-caption[data-mode='kuehlen'] strong {
+  background: var(--gradient-cool, linear-gradient(135deg, #2e7cf6, #1d4ed8));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hp-caption em {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   Control bar — pills + heat-flow toggle
+   ============================================================ */
+.hp-control {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-4, 16px);
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 var(--space-6, 24px);
+}
+
+.hp-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  height: 56px;
+}
+.hp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  min-width: 160px;
+  height: 48px;
+  padding: 0 var(--space-3, 12px);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--type-small, 13px);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    background var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1)),
+    color var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1)),
+    box-shadow var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+}
+.hp-pill__num {
+  font-size: var(--type-tiny, 11px);
+  letter-spacing: 0.18em;
+  color: var(--color-text-subtle);
+  transition: color var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+}
+.hp-pill[aria-pressed='true'][data-mode='heizen'] {
+  background: var(--gradient-accent);
+  color: #1a1614;
+  box-shadow: 0 1px 6px rgba(246, 160, 0, 0.35);
+}
+.hp-pill[aria-pressed='true'][data-mode='kuehlen'] {
+  background: linear-gradient(135deg, #2e7cf6, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 1px 6px rgba(46, 124, 246, 0.4);
+}
+.hp-pill[aria-pressed='true'][data-mode='heizen'] .hp-pill__num {
+  color: rgba(26, 22, 20, 0.7);
+}
+.hp-pill[aria-pressed='true'][data-mode='kuehlen'] .hp-pill__num {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Heat-flow toggle */
+.hp-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: var(--type-small, 13px);
+  color: var(--color-text-muted);
+  user-select: none;
+}
+.hp-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.hp-toggle__track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  transition: background var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+  flex-shrink: 0;
+}
+.hp-toggle__dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  transition:
+    transform var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1)),
+    background var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+}
+.hp-toggle input:checked + .hp-toggle__track {
+  background: rgba(246, 160, 0, 0.25);
+}
+.hp-toggle input:checked + .hp-toggle__track .hp-toggle__dot {
+  transform: translateX(20px);
+  background: var(--color-accent);
+}

@@ -19,6 +19,8 @@ export interface KioskState {
   houseSize: HouseSize;
   innenStep: InnenStep;
   innenPumpOpen: boolean;
+  /** Persisted "Wärmestrom anzeigen" preference for the Innen heat-pump mode */
+  innenShowHeat: boolean;
 }
 
 export const DEFAULT_STATE: KioskState = {
@@ -33,6 +35,7 @@ export const DEFAULT_STATE: KioskState = {
   houseSize: 'mittel',
   innenStep: 1,
   innenPumpOpen: false,
+  innenShowHeat: true,
 };
 
 type Listener = (s: KioskState, prev: KioskState) => void;
