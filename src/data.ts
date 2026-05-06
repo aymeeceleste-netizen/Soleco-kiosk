@@ -17,7 +17,7 @@ export interface CopRow {
 export const COP_BY_TEMP_HEAT: CopRow[] = [
   { temp: -15, cop: 2.64, arrows: 2, heatKwh: 2.6 },
   { temp: -7, cop: 3.26, arrows: 2, heatKwh: 3.3 },
-  { temp: 2, cop: 4.34, arrows: 3, heatKwh: 4.3 },
+  { temp: 0, cop: 4.2, arrows: 3, heatKwh: 4.2 },
   { temp: 7, cop: 5.01, arrows: 4, heatKwh: 5.0 },
   { temp: 12, cop: 6.26, arrows: 5, heatKwh: 6.3 },
 ];

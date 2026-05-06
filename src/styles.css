@@ -405,7 +405,7 @@ button:focus-visible {
   font-size: var(--type-medium);
   color: var(--color-text);
   text-align: center;
-  padding: 0 var(--space-6);
+  padding: 6px 32px;
 }
 
 .mode-control {
@@ -417,23 +417,43 @@ button:focus-visible {
 }
 
 /* ----------------------------------------------------------
-   Energie hero — single connected canvas
-   The hero is a relative box. An SVG covers it edge-to-edge
-   (preserveAspectRatio="none") so SVG x/y maps 1:1 to hero
-   percentages. The photo, labels and house silhouette are
-   absolutely positioned at percentages that align with SVG
-   coordinates, so lines actually touch the photo edges.
+   Energie hero — canvas animation behind a centered photo of
+   the unit. Air wisps come in from the left, an electric pulse
+   drops in from the top, and orange heat pulses radiate to the
+   house at the right. All flows are drawn in screen-space
+   pixels so the canvas resizes via ResizeObserver.
    ---------------------------------------------------------- */
+/* Hero fills the kiosk shell's allotted slot exactly — the canvas + the
+   stats overlay both live inside the scene which fills the hero. */
 .energie-hero {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  color: var(--color-accent);
 }
 
-.energie-hero[data-mode='kuehlen'] {
-  color: var(--color-cool);
+.energie-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Stats row sits in normal flow under the scene — not absolute. */
+/* Stats row is an absolute overlay anchored to the bottom of the scene:
+   air pinned bottom-left, heat (with COP) pinned bottom-right, both
+   floating over the canvas animation. */
+.energie-stats-row {
+  position: absolute;
+  top: 8px;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 32px;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .energie-canvas {
@@ -442,201 +462,133 @@ button:focus-visible {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 0;
 }
 
-.energie-fan-lines path {
-  transition: opacity var(--motion-base) var(--ease);
-}
-
-/* Photo: dead-center horizontally, slightly above center vertically
-   to leave room for the from-air label below. Photo edges land at
-   x=37% / x=63% — same as PHOTO_LEFT_VB/PHOTO_RIGHT_VB in energie.ts. */
-.energie-stage {
+/* AUSSENLUFT — sits just above the air-flow wisps that converge on the
+   unit at cy = H * 0.68; placing it at top:40% keeps clear separation
+   from the STROM label above and the AUS DER LUFT stat below. */
+.energie-aussenluft {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 26%;
-  aspect-ratio: 1461 / 822;
-}
-
-.energie-photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.energie-hex {
-  position: absolute;
-  width: 7.4%;
-  aspect-ratio: 1 / 1.1547;
-  left: 62.77%;
-  top: 43.07%;
-  transform: translate(-50%, -50%);
+  top: 40%;
+  left: 2%;
+  font-size: var(--type-tiny, 10px);
+  letter-spacing: 0.18em;
+  color: rgba(184, 176, 168, 0.5);
+  font-weight: 600;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--motion-base) var(--ease);
-  filter: drop-shadow(0 0 12px rgba(46, 124, 246, 0.7));
-}
-.energie-hex[data-state='cool'] {
-  opacity: 1;
+  z-index: 2;
 }
 
-/* Numeric labels — absolute, percentage-positioned to sit at the right
-   spot relative to the SVG canvas */
-.energie-label {
+/* Strom (electricity input) — centered above the unit. */
+.energie-elec {
   position: absolute;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
   display: grid;
   justify-items: center;
-  text-align: center;
-  white-space: nowrap;
-  line-height: 1.05;
+  gap: 4px;
   pointer-events: none;
+  z-index: 2;
 }
-.energie-label .num {
-  font-size: var(--type-display);
-  font-weight: 500;
+.energie-elec__label {
+  font-size: var(--type-tiny);
+  letter-spacing: 0.18em;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+}
+.energie-elec__val {
+  font-size: var(--type-medium);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1;
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.energie-label .unit {
-  font-size: var(--type-small);
-  color: var(--color-text-muted);
-  letter-spacing: 0.04em;
-  margin-top: 6px;
-}
-.energie-hero[data-mode='kuehlen'] .energie-label .num {
-  background: linear-gradient(135deg, #2e7cf6 0%, #1d4ed8 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
-/* "5.01 kWh Wärme" / "4.30 kWh Wärme abgegeben": above the house. */
-.energie-label--out {
-  right: 7%;
-  top: 12%;
-  text-align: center;
+/* Stat blocks live inside .energie-stats-row, in normal flow.
+   Air pins to the left wall, heat to the right wall. */
+.energie-stat-block--air { text-align: left; }
+.energie-stat-block--heat { text-align: right; }
+
+.energie-stat__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-text-muted, #7a7872);
+  margin-bottom: 5px;
 }
-.energie-label--out .num {
-  font-size: 56px;
+.energie-stat-block--air .energie-stat__num {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text, #e8e6e1);
+  font-feature-settings: 'tnum' 1;
+}
+.energie-stat-block--heat .energie-stat__num {
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--orange, #e8920c);
+  text-shadow: 0 0 50px rgba(232, 146, 12, 0.35);
+  font-feature-settings: 'tnum' 1;
+}
+.energie-stat__unit {
+  font-size: 13px;
+  color: var(--color-text-muted, #7a7872);
+  margin-top: 3px;
+}
+.energie-stat__free {
+  color: #4ade80;
+  font-weight: 700;
 }
 
-/* Below-unit caption — heating: "+ N kWh aus der Luft (gratis)";
-   cooling: "1 kWh Strom bewegt N kWh Wärme nach draussen". */
-.energie-from-air {
-  position: absolute;
-  left: 50%;
-  bottom: 8%;
-  transform: translateX(-50%);
-  max-width: 80%;
-  text-align: center;
-  font-size: var(--type-small);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  transition: opacity var(--motion-base) var(--ease);
-  pointer-events: none;
-}
-.energie-from-air .plus {
-  color: var(--color-accent);
-  font-weight: 500;
-}
-.energie-from-air .num {
-  color: var(--color-text);
-  font-weight: 500;
-}
-.energie-hero[data-mode='kuehlen'] .energie-from-air .plus {
-  color: var(--color-cool);
-}
-
-/* Bolt + "1 kWh Strom" — separate input feeding the unit, top-center. */
-.energie-bolt {
-  position: absolute;
-  top: 8%;
-  left: 50%;
-  transform: translateX(-50%);
+.energie-cop-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--color-accent);
-  pointer-events: none;
-}
-.energie-hero[data-mode='kuehlen'] .energie-bolt {
-  color: var(--color-cool);
-}
-.energie-bolt__icon {
-  width: 14px;
-  height: 22px;
-  flex: 0 0 auto;
-}
-.energie-bolt__label {
-  font-size: var(--type-small);
-  color: var(--color-text);
+  background: rgba(232, 146, 12, 0.08);
+  border: 1px solid rgba(232, 146, 12, 0.2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--orange, #e8920c);
   font-weight: 500;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+}
+.energie-cop-badge__val {
+  font-weight: 700;
+  font-feature-settings: 'tnum' 1;
 }
 
-/* Cloud "Aussenluft" label — sits just below the cloud silhouette. */
-.energie-cloud-label {
-  position: absolute;
-  top: 60%;
-  left: 9.16%; /* CLOUD_CENTER_X_VB / VB_W = 110/1200 */
-  transform: translateX(-50%);
-  font-size: var(--type-tiny);
-  color: var(--color-text-subtle);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  pointer-events: none;
+@media (max-width: 768px) {
+  .energie-scene {
+    min-height: 280px;
+  }
+  .energie-stats-row {
+    padding: 6px 16px;
+  }
+  .energie-stat-block--heat .energie-stat__num {
+    font-size: 36px;
+  }
 }
 
 /* ----------------------------------------------------------
-   Energie control — pill toggle + slider + ticks
+   Energie control — temperature slider (bar is canvas-drawn now)
    ---------------------------------------------------------- */
 .energie-control {
-  grid-template-columns: auto 1fr;
-  gap: var(--space-5);
-  align-items: center;
+  width: 100%;
+  padding: 0;
 }
 
-.pill-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 999px;
-  height: 56px;
+/* Scope slider sizing to the Energie control so other modes' sliders are
+   unaffected. The slider-wrap is the centered element at 480px max. */
+.energie-control .slider-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2px 0;
 }
-
-.pill-toggle__btn {
-  min-width: 100px;
-  height: 48px;
-  padding: 0 var(--space-4);
-  border-radius: 999px;
-  font-size: var(--type-small);
-  font-weight: 500;
-  color: var(--color-text-muted);
-  letter-spacing: 0.04em;
-  transition:
-    background var(--motion-fast) var(--ease),
-    color var(--motion-fast) var(--ease);
-}
-
-.pill-toggle__btn[aria-pressed='true'] {
-  color: #1a1614;
-  background: var(--gradient-accent);
-  box-shadow: 0 1px 6px rgba(246, 160, 0, 0.35);
-}
-.pill-toggle__btn[data-value='kuehlen'][aria-pressed='true'] {
-  color: #ffffff;
-  background: linear-gradient(135deg, #2e7cf6 0%, #1d4ed8 100%);
-  box-shadow: 0 1px 6px rgba(46, 124, 246, 0.4);
+.energie-control .slider-ticks {
+  margin-top: 2px;
 }
 
 /* Slider */

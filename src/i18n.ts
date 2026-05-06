@@ -13,20 +13,29 @@ type Dict = {
   shellPlaceholderControl: string;
   energie: {
     caption: string;
-    captionCool: string;
+    /** "STROM" pill above the unit */
+    electricityLabel: string;
+    /** "1 kWh Strom" / "1 kWh electricity" — the value next to the bolt */
     electricityIn: string;
+    /** "AUSSENLUFT" / "OUTDOOR AIR" — drawn on the canvas */
     outsideAirLabel: string;
-    fromAir: string;
-    /** Heating below-unit caption HTML, e.g. "+ 4.01 kWh aus der Luft (gratis)" */
-    fromAirCaption: (n: string) => string;
-    /** Cooling below-unit caption HTML, e.g. "1 kWh Strom bewegt 4.30 kWh Wärme nach draussen" */
-    coolOutCaption: (n: string) => string;
+    /** Left stat header — "Aus der Luft" / "From the air" */
+    fromAirLabel: string;
+    /** Right stat header — "Wärme" / "Heat" */
+    heatLabel: string;
+    /** Right stat unit — "kWh Wärme" / "kWh heat" */
     heatOut: string;
-    coolOut: string;
-    heizen: string;
-    kuehlen: string;
+    /** Left stat tag — "GRATIS" / "FREE" */
+    free: string;
     cop: string;
-    notAvailable: string;
+    /** Multiplier bar legend — paid electricity */
+    paidElectricity: string;
+    /** Multiplier bar legend — free environmental energy */
+    freeEnvEnergy: string;
+    /** Slider section header — "Aussentemperatur" / "Outside temperature" */
+    outsideTemp: string;
+    /** Multiplier bar inner label, e.g. "+ 4.01 kWh Luft" */
+    airBarLabel: (n: string) => string;
   };
   kosten: {
     captionHeat: string;
@@ -112,20 +121,18 @@ const de: Dict = {
   energie: {
     caption:
       'Wärmepumpe macht keine Wärme — sie holt sie aus der Luft. Wie eine Velopumpe rückwärts.',
-    captionCool: 'Im Sommer arbeitet sie umgekehrt: Sie holt Wärme aus dem Haus.',
-    electricityIn: '1 kWh Strom',
+    electricityLabel: 'Strom',
+    electricityIn: '1 kWh',
     outsideAirLabel: 'Aussenluft',
-    fromAir: 'aus der Luft (gratis)',
-    fromAirCaption: (n) =>
-      `<span class="plus">+</span> <span class="num">${n} kWh</span> aus der Luft (gratis)`,
-    coolOutCaption: (n) =>
-      `1 kWh Strom bewegt <span class="num">${n} kWh</span> Wärme nach draussen`,
+    fromAirLabel: 'Aus der Luft',
+    heatLabel: 'Wärme',
     heatOut: 'kWh Wärme',
-    coolOut: 'kWh Wärme abgegeben',
-    heizen: 'Heizen',
-    kuehlen: 'Kühlen',
+    free: 'GRATIS',
     cop: 'COP',
-    notAvailable: 'Bei dieser Aussentemperatur wird nicht gekühlt.',
+    paidElectricity: 'Bezahlter Strom',
+    freeEnvEnergy: 'Gratis Umweltenergie',
+    outsideTemp: 'Aussentemperatur',
+    airBarLabel: (n) => `+ ${n} kWh Luft`,
   },
   kosten: {
     captionHeat: 'Heizkosten: Heizöl gegen Wärmepumpe',
@@ -217,20 +224,18 @@ const en: Dict = {
   shellPlaceholderControl: 'Pick a mode',
   energie: {
     caption: 'A heat pump doesn’t make heat — it moves it from the air. Like a bicycle pump in reverse.',
-    captionCool: 'In summer it works in reverse: it pulls heat out of the house.',
-    electricityIn: '1 kWh electricity',
+    electricityLabel: 'Electricity',
+    electricityIn: '1 kWh',
     outsideAirLabel: 'Outdoor air',
-    fromAir: 'from the air (free)',
-    fromAirCaption: (n) =>
-      `<span class="plus">+</span> <span class="num">${n} kWh</span> from the air (free)`,
-    coolOutCaption: (n) =>
-      `1 kWh of electricity moves <span class="num">${n} kWh</span> of heat outside`,
+    fromAirLabel: 'From the air',
+    heatLabel: 'Heat',
     heatOut: 'kWh heat',
-    coolOut: 'kWh heat moved out',
-    heizen: 'Heating',
-    kuehlen: 'Cooling',
+    free: 'FREE',
     cop: 'COP',
-    notAvailable: 'Cooling is not used at this outside temperature.',
+    paidElectricity: 'Paid electricity',
+    freeEnvEnergy: 'Free environmental energy',
+    outsideTemp: 'Outside temperature',
+    airBarLabel: (n) => `+ ${n} kWh air`,
   },
   kosten: {
     captionHeat: 'Heating cost: oil vs. heat pump',
