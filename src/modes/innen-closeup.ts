@@ -29,16 +29,17 @@ export interface CloseupController {
   destroy(): void;
 }
 
-// SOLECO-skinned palette (RGB tuples for canvas tinting).
+// Palette ported from the v2 close-up prototypes (cooler design tones,
+// not the kiosk's amber-warm palette). Canvas bg matches the modal panel.
 const PALETTE = {
-  bg: '#1a1614',
-  surface: '#25201c',
-  wallSubtle: '#7a7370',
-  textMuted: 'rgba(248, 245, 240, 0.55)',
-  blue: [127, 179, 255] as RGB, // matches refrigerant coldGas
-  amb: [246, 160, 0] as RGB, // matches --color-accent / warmLiq
-  red: [255, 120, 73] as RGB, // matches refrigerant hotGas
-  icy: [174, 207, 255] as RGB, // light blue tail (post-orifice)
+  bg: '#1a1a1a',
+  surface: '#242422',
+  wallSubtle: '#555',
+  textMuted: 'rgba(255, 255, 255, 0.55)',
+  blue: [96, 165, 250] as RGB,
+  amb: [245, 158, 11] as RGB,
+  red: [239, 68, 68] as RGB,
+  icy: [147, 197, 253] as RGB,
 };
 
 type RGB = [number, number, number];
@@ -302,7 +303,7 @@ function startCompressorAnim(
     }
 
     // Intake
-    ctx.fillStyle = 'rgba(127,179,255,.06)';
+    ctx.fillStyle = 'rgba(96,165,250,.06)';
     ctx.fillRect(IN_X - 10, IN_Y, IN_W + 20, IN_H);
     ctx.strokeStyle = PALETTE.wallSubtle;
     ctx.lineWidth = 2;
@@ -316,7 +317,7 @@ function startCompressorAnim(
     ctx.stroke();
 
     // Chamber
-    ctx.fillStyle = `rgba(255,120,73,${p * 0.12})`;
+    ctx.fillStyle = `rgba(239,68,68,${p * 0.12})`;
     ctx.beginPath();
     ctx.roundRect(CH_X, CH_Y, CH_W, CH_H, 6);
     ctx.fill();
@@ -326,10 +327,17 @@ function startCompressorAnim(
     ctx.roundRect(CH_X, CH_Y, CH_W, CH_H, 6);
     ctx.stroke();
 
+    // "Compression chamber" label inside the top of the chamber
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = '500 11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(labels.chamberLabel, CH_X + CH_W / 2, CH_Y + 8);
+
     // Outlet
-    ctx.fillStyle = 'rgba(255,120,73,.1)';
+    ctx.fillStyle = 'rgba(239,68,68,.1)';
     ctx.fillRect(0, OUT_Y, CH_X, OUT_H);
-    ctx.strokeStyle = 'rgba(255,120,73,.5)';
+    ctx.strokeStyle = 'rgba(239,68,68,.5)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, OUT_Y);
@@ -340,16 +348,16 @@ function startCompressorAnim(
     ctx.lineTo(CH_X, OUT_Y + OUT_H);
     ctx.stroke();
 
-    ctx.fillStyle = `rgba(255,120,73,${p * 0.1})`;
+    ctx.fillStyle = `rgba(239,68,68,${p * 0.1})`;
     ctx.fillRect(CH_X - 1, OUT_Y + 1, 4, OUT_H - 2);
     ctx.fillRect(CH_X + CH_W - 3, IN_Y + 1, 6, IN_H - 2);
 
     // Piston
-    ctx.fillStyle = '#9a9085';
+    ctx.fillStyle = '#999';
     ctx.beginPath();
     ctx.roundRect(pistonLeft, CH_Y + 4, PW, CH_H - 8, 3);
     ctx.fill();
-    ctx.strokeStyle = '#7a7370';
+    ctx.strokeStyle = '#888';
     ctx.lineWidth = 5;
     ctx.lineCap = 'round';
     ctx.beginPath();
@@ -493,12 +501,9 @@ function startCompressorAnim(
     } else if (p < 0.5) {
       ctx.fillStyle = rgbN(PALETTE.amb);
       ctx.fillText(labels.warming, CH_X + CH_W / 2, CH_Y + CH_H + 14);
-    } else if (p < 0.85) {
+    } else {
       ctx.fillStyle = rgbN(PALETTE.red);
       ctx.fillText(labels.hot, CH_X + CH_W / 2, CH_Y + CH_H + 14);
-    } else {
-      ctx.fillStyle = rgbN(lcN(PALETTE.red, PALETTE.blue, (p - 0.85) / 0.15));
-      ctx.fillText(labels.releasing, CH_X + CH_W / 2, CH_Y + CH_H + 14);
     }
 
     raf = requestAnimationFrame(step);
@@ -590,9 +595,10 @@ function startExpansionAnim(
       spT = time;
     }
 
-    ctx.fillStyle = 'rgba(255,120,73,.1)';
+    // Narrow pipe (left, hot side)
+    ctx.fillStyle = 'rgba(239,68,68,.1)';
     ctx.fillRect(NAR_X, NAR_Y, NAR_W, NAR_H);
-    ctx.strokeStyle = 'rgba(255,120,73,.5)';
+    ctx.strokeStyle = 'rgba(239,68,68,.5)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, NAR_Y);
@@ -603,18 +609,26 @@ function startExpansionAnim(
     ctx.lineTo(VX, NAR_Y + NAR_H);
     ctx.stroke();
 
-    ctx.fillStyle = 'rgba(127,179,255,.06)';
+    // Wide pipe (right, cold side)
+    ctx.fillStyle = 'rgba(96,165,250,.06)';
     ctx.beginPath();
     ctx.roundRect(WIDE_X, WIDE_Y, WIDE_W, WIDE_H, 8);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(127,179,255,.4)';
+    ctx.strokeStyle = 'rgba(96,165,250,.4)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.roundRect(WIDE_X, WIDE_Y, WIDE_W, WIDE_H, 8);
     ctx.stroke();
 
+    // "Low-pressure side" caption inside the wide pipe
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = '500 11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(labels.lowPressureSide, WIDE_X + WIDE_W / 2, WIDE_Y + 8);
+
     // Valve body
-    ctx.fillStyle = '#7a7370';
+    ctx.fillStyle = '#555';
     ctx.beginPath();
     ctx.roundRect(VX, WIDE_Y - 2, VW, GAP_Y - WIDE_Y + 2, 3);
     ctx.fill();
@@ -623,9 +637,9 @@ function startExpansionAnim(
     ctx.fill();
 
     // Orifice
-    ctx.fillStyle = '#3a3330';
+    ctx.fillStyle = '#3a3a37';
     ctx.fillRect(VX + 6, GAP_Y, VW - 12, GAP_H);
-    ctx.strokeStyle = '#a09a92';
+    ctx.strokeStyle = '#888';
     ctx.lineWidth = 1.5;
     ctx.strokeRect(VX + 5, GAP_Y - 1, VW - 10, GAP_H + 2);
 
@@ -727,17 +741,7 @@ function startExpansionAnim(
       }
     }
 
-    // Labels
-    ctx.fillStyle = rgbN(PALETTE.red);
-    ctx.font = '500 12px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(labels.warmIn, NAR_W / 2, NAR_Y + NAR_H + 10);
-    ctx.fillStyle = rgbN(PALETTE.icy);
-    ctx.fillText(labels.coldOut, WIDE_X + WIDE_W / 2, WIDE_Y + WIDE_H + 10);
-    ctx.fillStyle = PALETTE.textMuted;
-    ctx.font = '500 11px Inter, sans-serif';
-    ctx.fillText(labels.orifice, VX + VW / 2, WIDE_Y + WIDE_H + 28);
+    // Labels — only the two top corner captions remain (warm | cold)
     ctx.fillStyle = rgbN(PALETTE.red);
     ctx.font = '500 13px Inter, sans-serif';
     ctx.textAlign = 'left';

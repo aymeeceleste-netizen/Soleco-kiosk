@@ -89,7 +89,7 @@ type Dict = {
           cool: string;
           warming: string;
           hot: string;
-          releasing: string;
+          chamberLabel: string;
         };
       };
       expansion: {
@@ -98,11 +98,9 @@ type Dict = {
         analogy: string;
         disclaimer: string;
         labels: {
-          warmIn: string;
-          coldOut: string;
-          orifice: string;
           warm: string;
           cold: string;
+          lowPressureSide: string;
         };
       };
     };
@@ -213,33 +211,31 @@ const de: Dict = {
     popup: {
       compressor: {
         title: 'Der Kompressor',
-        desc: 'Kühles Gas strömt von rechts ein. Der Kompressor verdichtet es. Heisses Gas unter hohem Druck strömt links durch ein enges Rohr aus.',
+        desc: 'Kühles Gas strömt in den Kompressor. Der Kompressor verdichtet es. Heisses Gas unter hohem Druck strömt zum Innenwärmetauscher.',
         analogy:
           '💡 Wie eine Velopumpe — wenn du Luft in einen engen Raum drückst, wird sie heiss. Genau das macht der Kompressor mit dem Kältemittel.',
         disclaimer:
-          'Vereinfachte Animation — zeigt das Funktionsprinzip, nicht den exakten internen Aufbau Ihres Systems. Reale Systeme nutzen Scroll- oder Rotationskompressoren, das Prinzip bleibt gleich.',
+          'Konzeptuelle Animation — Ihr System arbeitet nach demselben Prinzip, der innere Aufbau unterscheidet sich jedoch.',
         labels: {
-          coolIn: 'Kühles Gas →',
+          coolIn: '← Kühles Gas',
           hotOut: '← Heisses, verdichtetes Gas',
           cool: 'Kühl · Niederdruck',
           warming: 'Wird warm · Druck steigt',
           hot: 'Heiss · Hochdruck',
-          releasing: 'Ausstoss · Druck fällt',
+          chamberLabel: 'Verdichterkammer',
         },
       },
       expansion: {
         title: 'Das Expansionsventil',
-        desc: 'Heisse Flüssigkeit dicht gepackt in einem engen Rohr. Sie wird durch die Drosselöffnung gedrückt und entweicht ins weite Rohr — sie verteilt sich, bleibt in Bewegung und kühlt ab.',
+        desc: 'Heisse Flüssigkeit dicht gepackt auf der Hochdruckseite. Sie wird durch die Drosselöffnung gedrückt und entweicht in die Niederdruckseite — sie verteilt sich und kühlt ab.',
         analogy:
           '💡 Wie beim Sprühen einer Deospraydose — das Gas dehnt sich aus und die Düse wird eiskalt. Das Expansionsventil funktioniert nach demselben Prinzip.',
         disclaimer:
-          'Vereinfachte Animation — zeigt das Funktionsprinzip, nicht den exakten internen Aufbau Ihres Systems.',
+          'Konzeptuelle Animation — Ihr System arbeitet nach demselben Prinzip, der innere Aufbau unterscheidet sich jedoch.',
         labels: {
-          warmIn: 'Warme Flüssigkeit → (dicht gepackt)',
-          coldOut: 'Kaltes Gas → (verteilt & strömend)',
-          orifice: 'DROSSEL',
           warm: 'Warm · Hochdruck',
           cold: 'Kalt · Niederdruck',
+          lowPressureSide: 'Niederdruckseite',
         },
       },
     },
@@ -351,33 +347,31 @@ const en: Dict = {
     popup: {
       compressor: {
         title: 'The compressor',
-        desc: 'Cool gas flows in from the right. The compressor squeezes it. Hot, high-pressure gas streams out through a narrow pipe on the left.',
+        desc: 'Cool gas flows into the compressor. The compressor squeezes it. Hot, high-pressure gas streams out toward the indoor coil.',
         analogy:
           "💡 Think of a bicycle pump — when you squeeze air into a tight space, it heats up. That's what the compressor does to the refrigerant.",
         disclaimer:
-          'Simplified animation — shows the working principle, not the exact internal mechanics of your system. Real systems use scroll or rotary compressors, but the principle is the same.',
+          'This is a conceptual animation — your system works on the same principle, but the internal mechanics differ.',
         labels: {
-          coolIn: 'Cool gas in →',
+          coolIn: '← Cool gas in',
           hotOut: '← Hot compressed gas out',
           cool: 'Cool · Low pressure',
           warming: 'Warming · Pressure rising',
           hot: 'Hot · High pressure',
-          releasing: 'Releasing · Pressure dropping',
+          chamberLabel: 'Compression chamber',
         },
       },
       expansion: {
         title: 'The expansion valve',
-        desc: 'Hot liquid packed tight in a narrow pipe. It squeezes through the orifice and escapes into the wide pipe — spreading out, keeping moving, getting cold.',
+        desc: 'Hot liquid packed tight on the high-pressure side. It squeezes through the orifice and escapes into the low-pressure side — spreading out and cooling down.',
         analogy:
           '💡 Like spraying a compressed deodorant can — the gas expands and the nozzle gets ice cold. The expansion valve works the same way.',
         disclaimer:
-          'Simplified animation — shows the working principle, not the exact internal mechanics of your system.',
+          'This is a conceptual animation — your system works on the same principle, but the internal mechanics differ.',
         labels: {
-          warmIn: 'Warm liquid in → (packed tight)',
-          coldOut: 'Cold gas out → (spread out & flowing)',
-          orifice: 'ORIFICE',
-          warm: 'Warm · High pressure',
+          warm: 'Hot · High pressure',
           cold: 'Cold · Low pressure',
+          lowPressureSide: 'Low-pressure side',
         },
       },
     },
