@@ -10,8 +10,11 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: var(--color-bg);
 }
 
@@ -208,4 +211,192 @@
 .hp-toggle input:checked + .hp-toggle__track .hp-toggle__dot {
   transform: translateX(20px);
   background: var(--color-accent);
+}
+
+/* ============================================================
+   Tap-to-explore affordance — pulse rings on the compressor +
+   expansion valve, hint caption under the schematic. The full
+   close-up modal lands in the next pass; for now the rings
+   signal that these components are interactive.
+   ============================================================ */
+.hp-component {
+  cursor: pointer;
+}
+.hp-component:focus-visible {
+  outline: none;
+}
+.hp-component:focus-visible > rect:not(.hp-pulse) {
+  stroke: var(--color-accent, #f6a000);
+  stroke-opacity: 0.9;
+}
+
+.hp-pulse {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: hp-pulse-anim 2.4s var(--ease, cubic-bezier(0.2, 0, 0, 1)) infinite;
+  pointer-events: none;
+}
+.hp-pulse--delayed {
+  animation-delay: 1.2s;
+}
+@keyframes hp-pulse-anim {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+.hp-hint {
+  margin: 0;
+  font-size: var(--type-tiny, 12px);
+  color: var(--color-text-subtle, #7a7370);
+  letter-spacing: 0.01em;
+  text-align: center;
+  padding: 0 16px;
+}
+
+/* ============================================================
+   Component close-up modal — mounted on document.body so it
+   overlays the kiosk shell (matching the qr-modal pattern).
+   ============================================================ */
+.hp-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+.hp-modal[aria-hidden='false'] {
+  display: flex;
+}
+.hp-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: hp-modal-fade 200ms var(--ease, cubic-bezier(0.2, 0, 0, 1));
+}
+.hp-modal__panel {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 32px);
+  background: var(--color-bg, #1a1614);
+  color: var(--color-text, #faf8f5);
+  border: 1px solid var(--color-divider, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius, 12px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: hp-modal-pop 250ms var(--ease, cubic-bezier(0.2, 0, 0, 1));
+}
+@keyframes hp-modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes hp-modal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.hp-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-divider, rgba(255, 255, 255, 0.08));
+}
+.hp-modal__title {
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text, #faf8f5);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+.hp-modal__close {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-text-muted, #b8b0a8);
+  border: 1px solid var(--color-divider, rgba(255, 255, 255, 0.08));
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1)),
+    background var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1)),
+    border-color var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+}
+.hp-modal__close:hover {
+  color: var(--color-text, #faf8f5);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.hp-modal__body {
+  padding: 16px;
+  overflow-y: auto;
+}
+.hp-modal__desc {
+  font-size: 13px;
+  color: var(--color-text-muted, #b8b0a8);
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+.hp-modal__analogy {
+  font-size: 12.5px;
+  color: var(--color-text-muted, #b8b0a8);
+  line-height: 1.55;
+  padding: 9px 14px;
+  border-left: 2.5px solid rgba(246, 160, 0, 0.35);
+  background: var(--color-surface, #25201c);
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 12px;
+}
+.hp-modal__canvas {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid var(--color-divider, rgba(255, 255, 255, 0.08));
+  background: var(--color-bg, #1a1614);
+}
+.hp-modal__disclaimer {
+  font-size: 11px;
+  color: var(--color-text-subtle, #7a7370);
+  font-style: italic;
+  margin: 10px 0 0;
+  line-height: 1.55;
+}
+@media (max-width: 520px) {
+  .hp-modal {
+    padding: 8px;
+  }
+  .hp-modal__panel {
+    max-height: calc(100vh - 16px);
+  }
+  .hp-modal__body {
+    padding: 12px;
+  }
 }

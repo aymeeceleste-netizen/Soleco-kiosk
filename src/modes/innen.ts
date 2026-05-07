@@ -3,6 +3,7 @@ import { t } from '../i18n';
 import type { EnergieMode, KioskState, Lang } from '../state';
 import { store } from '../state';
 import type { ModeView } from './_types';
+import { createCloseupController } from './innen-closeup';
 
 /**
  * Innen mode — heat-pump schematic (replaces the earlier abstract loop).
@@ -59,6 +60,13 @@ export function mountInnen(): ModeView {
   const svg = buildSvg(id);
   stage.appendChild(svg);
 
+  // Hint under the schematic — invites users to tap the compressor / valve.
+  // Click handlers (modal close-ups) come in pass 2; for now the SVG groups
+  // are styled as clickable so the affordance is visible.
+  const hint = document.createElement('p');
+  hint.className = 'hp-hint';
+  hero.appendChild(hint);
+
   // ---- Caption ---------------------------------------------
   const caption = document.createElement('div');
   caption.className = 'mode-caption';
@@ -95,6 +103,29 @@ export function mountInnen(): ModeView {
     store.set({ innenShowHeat: toggle.input.checked });
   });
 
+  // ---- Component close-up modal -----------------------------
+  // Wired on document.body so it overlays the kiosk shell. The controller
+  // owns its own DOM; we only feed it the current i18n dict and handle the
+  // SVG-group click/keyboard hotspots.
+  const closeup = createCloseupController(() => t(store.get().lang).innen);
+
+  const expansionG = svg.querySelector<SVGGElement>('#hp-expansion');
+  const compressorG = svg.querySelector<SVGGElement>('#hp-compressor');
+  const wireHotspot = (g: SVGGElement | null, which: 'compressor' | 'expansion'): void => {
+    if (!g) return;
+    g.setAttribute('tabindex', '0');
+    g.setAttribute('role', 'button');
+    g.addEventListener('click', () => closeup.open(which));
+    g.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        closeup.open(which);
+      }
+    });
+  };
+  wireHotspot(expansionG, 'expansion');
+  wireHotspot(compressorG, 'compressor');
+
   // ---- Animation runtime (deferred until SVG is in DOM) -----
   let anim: AnimRefs | null = null;
   let setupRaf = 0;
@@ -114,6 +145,7 @@ export function mountInnen(): ModeView {
   setupRaf = requestAnimationFrame(tryStartAnim);
 
   // ---- Render on state change -------------------------------
+  let lastLang: Lang | null = null;
   function render(state: KioskState): void {
     const lang: Lang = state.lang;
     const mode: EnergieMode = state.energieMode;
@@ -131,6 +163,8 @@ export function mountInnen(): ModeView {
     toggle.input.checked = showHeat;
     toggle.labelText.textContent = dict.showHeatFlow;
 
+    hint.textContent = dict.hintCaption;
+
     if (anim) {
       anim.setLabels(dict, mode);
       anim.setMode(mode);
@@ -138,6 +172,12 @@ export function mountInnen(): ModeView {
 
     captionInner.innerHTML = mode === 'heizen' ? dict.heat.explainer : dict.cool.explainer;
     captionInner.dataset.mode = mode;
+
+    // Re-pull modal copy/canvas labels when the kiosk language toggles.
+    if (lastLang !== lang) {
+      lastLang = lang;
+      closeup.refresh();
+    }
   }
 
   const unsubscribe = store.subscribe(render);
@@ -152,6 +192,7 @@ export function mountInnen(): ModeView {
       unsubscribe();
       if (setupRaf) cancelAnimationFrame(setupRaf);
       anim?.stop();
+      closeup.destroy();
     },
   };
 }
@@ -286,7 +327,8 @@ function buildSvg(id: string): SVGSVGElement {
       <text id="hp-outdoor-coil-name" x="535" y="357" text-anchor="middle" font-size="11" font-weight="500" fill="var(--color-text, #faf8f5)">Aussenwärmetauscher</text>
       <text id="hp-outdoor-coil-sub" x="535" y="371" text-anchor="middle" font-size="9" fill="var(--color-text-muted, #b8b0a8)">(holt Wärme aus der Aussenluft)</text>
 
-      <g>
+      <g id="hp-expansion" class="hp-component">
+        <rect class="hp-pulse" x="316" y="204" width="88" height="52" rx="8" fill="none" stroke="#f6a000" stroke-width="1.5"/>
         <rect x="320" y="208" width="80" height="44" rx="6" fill="var(--color-bg, #1a1614)" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
         <polygon points="354,222 366,222 360,234" fill="none" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
         <polygon points="354,246 366,246 360,234" fill="none" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
@@ -294,7 +336,8 @@ function buildSvg(id: string): SVGSVGElement {
         <text id="hp-expansion-sub" x="360" y="282" text-anchor="middle" font-size="9" fill="var(--color-text-muted, #b8b0a8)">(senkt den Druck)</text>
       </g>
 
-      <g>
+      <g id="hp-compressor" class="hp-component">
+        <rect class="hp-pulse hp-pulse--delayed" x="316" y="316" width="88" height="58" rx="8" fill="none" stroke="#f6a000" stroke-width="1.5"/>
         <rect x="320" y="320" width="80" height="50" rx="6" fill="var(--color-bg, #1a1614)" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
         <circle cx="360" cy="345" r="13" fill="none" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
         <circle id="hp-comp-piston" cx="360" cy="345" r="5" fill="#7a7370"/>

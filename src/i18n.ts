@@ -62,6 +62,8 @@ type Dict = {
     modeHeat: string;
     modeCool: string;
     showHeatFlow: string;
+    /** Hint under the schematic, e.g. "Tippe Kompressor oder Expansionsventil für eine Nahaufnahme." */
+    hintCaption: string;
     indoorAir: string;
     outdoorAir: string;
     brandLabel: string;
@@ -71,6 +73,39 @@ type Dict = {
     compressor: string;
     expansionSub: string;
     compressorSub: string;
+    /** Close button label for component close-up modal. */
+    modalClose: string;
+    /** Component close-up modal payload (title, description, analogy,
+       disclaimer, and on-canvas labels) per component. */
+    popup: {
+      compressor: {
+        title: string;
+        desc: string;
+        analogy: string;
+        disclaimer: string;
+        labels: {
+          coolIn: string;
+          hotOut: string;
+          cool: string;
+          warming: string;
+          hot: string;
+          releasing: string;
+        };
+      };
+      expansion: {
+        title: string;
+        desc: string;
+        analogy: string;
+        disclaimer: string;
+        labels: {
+          warmIn: string;
+          coldOut: string;
+          orifice: string;
+          warm: string;
+          cold: string;
+        };
+      };
+    };
     heat: {
       indoorSub1: string;
       indoorSub2: string;
@@ -164,6 +199,7 @@ const de: Dict = {
     modeHeat: 'Heizen (Winter)',
     modeCool: 'Kühlen (Sommer)',
     showHeatFlow: 'Wärmestrom anzeigen',
+    hintCaption: 'Tippe Kompressor oder Expansionsventil für eine Nahaufnahme.',
     indoorAir: 'INNENLUFT',
     outdoorAir: 'AUSSENLUFT',
     brandLabel: 'SOLECO Wärmepumpe',
@@ -173,6 +209,40 @@ const de: Dict = {
     compressor: 'Kompressor',
     expansionSub: '(senkt den Druck)',
     compressorSub: '(erhöht den Druck)',
+    modalClose: 'Schliessen',
+    popup: {
+      compressor: {
+        title: 'Der Kompressor',
+        desc: 'Kühles Gas strömt von rechts ein. Der Kompressor verdichtet es. Heisses Gas unter hohem Druck strömt links durch ein enges Rohr aus.',
+        analogy:
+          '💡 Wie eine Velopumpe — wenn du Luft in einen engen Raum drückst, wird sie heiss. Genau das macht der Kompressor mit dem Kältemittel.',
+        disclaimer:
+          'Vereinfachte Animation — zeigt das Funktionsprinzip, nicht den exakten internen Aufbau Ihres Systems. Reale Systeme nutzen Scroll- oder Rotationskompressoren, das Prinzip bleibt gleich.',
+        labels: {
+          coolIn: 'Kühles Gas →',
+          hotOut: '← Heisses, verdichtetes Gas',
+          cool: 'Kühl · Niederdruck',
+          warming: 'Wird warm · Druck steigt',
+          hot: 'Heiss · Hochdruck',
+          releasing: 'Ausstoss · Druck fällt',
+        },
+      },
+      expansion: {
+        title: 'Das Expansionsventil',
+        desc: 'Heisse Flüssigkeit dicht gepackt in einem engen Rohr. Sie wird durch die Drosselöffnung gedrückt und entweicht ins weite Rohr — sie verteilt sich, bleibt in Bewegung und kühlt ab.',
+        analogy:
+          '💡 Wie beim Sprühen einer Deospraydose — das Gas dehnt sich aus und die Düse wird eiskalt. Das Expansionsventil funktioniert nach demselben Prinzip.',
+        disclaimer:
+          'Vereinfachte Animation — zeigt das Funktionsprinzip, nicht den exakten internen Aufbau Ihres Systems.',
+        labels: {
+          warmIn: 'Warme Flüssigkeit → (dicht gepackt)',
+          coldOut: 'Kaltes Gas → (verteilt & strömend)',
+          orifice: 'DROSSEL',
+          warm: 'Warm · Hochdruck',
+          cold: 'Kalt · Niederdruck',
+        },
+      },
+    },
     heat: {
       indoorSub1: '(gibt Wärme',
       indoorSub2: 'in den Raum ab)',
@@ -267,6 +337,7 @@ const en: Dict = {
     modeHeat: 'Heating (winter)',
     modeCool: 'Cooling (summer)',
     showHeatFlow: 'Show heat flow',
+    hintCaption: 'Tap the compressor or expansion valve for a close-up.',
     indoorAir: 'INDOOR AIR',
     outdoorAir: 'OUTDOOR AIR',
     brandLabel: 'SOLECO heat pump',
@@ -276,6 +347,40 @@ const en: Dict = {
     compressor: 'Compressor',
     expansionSub: '(drops pressure)',
     compressorSub: '(raises pressure)',
+    modalClose: 'Close',
+    popup: {
+      compressor: {
+        title: 'The compressor',
+        desc: 'Cool gas flows in from the right. The compressor squeezes it. Hot, high-pressure gas streams out through a narrow pipe on the left.',
+        analogy:
+          "💡 Think of a bicycle pump — when you squeeze air into a tight space, it heats up. That's what the compressor does to the refrigerant.",
+        disclaimer:
+          'Simplified animation — shows the working principle, not the exact internal mechanics of your system. Real systems use scroll or rotary compressors, but the principle is the same.',
+        labels: {
+          coolIn: 'Cool gas in →',
+          hotOut: '← Hot compressed gas out',
+          cool: 'Cool · Low pressure',
+          warming: 'Warming · Pressure rising',
+          hot: 'Hot · High pressure',
+          releasing: 'Releasing · Pressure dropping',
+        },
+      },
+      expansion: {
+        title: 'The expansion valve',
+        desc: 'Hot liquid packed tight in a narrow pipe. It squeezes through the orifice and escapes into the wide pipe — spreading out, keeping moving, getting cold.',
+        analogy:
+          '💡 Like spraying a compressed deodorant can — the gas expands and the nozzle gets ice cold. The expansion valve works the same way.',
+        disclaimer:
+          'Simplified animation — shows the working principle, not the exact internal mechanics of your system.',
+        labels: {
+          warmIn: 'Warm liquid in → (packed tight)',
+          coldOut: 'Cold gas out → (spread out & flowing)',
+          orifice: 'ORIFICE',
+          warm: 'Warm · High pressure',
+          cold: 'Cold · Low pressure',
+        },
+      },
+    },
     heat: {
       indoorSub1: '(releases heat',
       indoorSub2: 'into your room)',
