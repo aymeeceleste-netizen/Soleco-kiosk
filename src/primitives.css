@@ -1,0 +1,376 @@
+/* ============================================================
+   SOLECO redesign primitives — frame, header, rail, content scaffold,
+   glow-tab, glow-pill, kicker / heroline / lang-toggle.
+
+   Ported from Soleco_Energie_D_Final.html (system canonical). Where
+   wording or measurements differ between the canonical and the brief,
+   the canonical wins.
+   ============================================================ */
+
+/* Page background and base type. Padding kept small (16px) so the kiosk
+   frame uses the full screen on the iPad target while still showing the
+   canonical's card-on-dark visual. */
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  padding: 16px;
+  margin: 0;
+}
+
+/* Outer kiosk frame. Canonical specced `min-height: 800px` and
+   `max-width: 1600px`; on real kiosk hardware (iPad 11" landscape =
+   1194×834) the height didn't fit, and on wider previews the cap
+   created dead space on the sides. Lock to the viewport instead. */
+.kiosk-frame {
+  background: var(--bg);
+  border-radius: 24px;
+  padding: 28px 40px;
+  height: 100%;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.kicker {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+.heroline {
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.heroline em {
+  font-style: italic;
+  color: var(--orange);
+  font-weight: 400;
+}
+
+/* ===== TOP HEADER BAR ===== */
+.kiosk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.kiosk-logo {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
+/* The lang-toggle here lives in the page header; it is intentionally a
+   plain pill with two segments. Pre-existing .lang-toggle styles in
+   styles.css target a different topbar; both can coexist for now. */
+.kiosk-header .lang-toggle {
+  display: flex;
+  gap: 4px;
+  border: 1px solid var(--border-soft);
+  padding: 3px;
+  border-radius: 999px;
+}
+.kiosk-header .lang-toggle button {
+  font-size: 11px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+  font-weight: 500;
+}
+.kiosk-header .lang-toggle button.on {
+  background: var(--orange);
+  color: #000;
+  font-weight: 600;
+}
+
+/* ===== LAYOUT D — vertical rail + content column ===== */
+.vD-grid {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 40px;
+  flex: 1;
+  min-height: 0;
+}
+.vD-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.vD-rail .glow-tab {
+  width: 72px;
+  padding: 18px 4px;
+  border-radius: 16px;
+  gap: 8px;
+}
+.vD-rail .glow-tab .tab-icon {
+  width: 22px;
+  height: 22px;
+}
+.vD-rail .glow-tab .tab-label {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.vD-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  min-height: 0;
+}
+.vD-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.vD-header h1 {
+  font-size: 32px;
+  max-width: 700px;
+}
+.vD-header .kicker {
+  margin-bottom: 12px;
+}
+
+/* The slot the active mode mounts its canvas/diagram into.
+   For canvas-based tabs (Energie): subtle orange ambient. For
+   SVG-diagram tabs (Innen): solid bg-deep. The mode is responsible
+   for setting `data-canvas-style="diagram"` if it wants the second
+   pattern (Innen). */
+.vD-canvas-area {
+  position: relative;
+  /* In the vD-content flex column, flex:1 lets this row take all
+     leftover space after the auto-sized header and controls rows.
+     The max-height cap prevents the canvas from eating the slider's
+     space on tall viewports. */
+  flex: 1 1 auto;
+  max-height: 50vh;
+  border-radius: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at center, rgba(232, 146, 12, 0.04) 0%, transparent 60%),
+    var(--bg-deep);
+  min-height: 0;
+}
+.vD-canvas-area[data-canvas-style='diagram'] {
+  background: var(--bg-deep);
+  padding: 24px;
+}
+
+.vD-controls {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+/* ===== GLOW-TAB — primary navigation primitive ===== */
+.glow-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--motion);
+  font-family: inherit;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+.glow-tab .tab-icon {
+  width: 22px;
+  height: 22px;
+  color: currentColor;
+  opacity: 0.85;
+}
+.glow-tab .tab-label {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  transition: color var(--motion);
+}
+.glow-tab:hover {
+  color: var(--text);
+}
+.glow-tab.active {
+  color: var(--orange);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(232, 146, 12, 0.22) 0%,
+    rgba(232, 146, 12, 0.08) 40%,
+    transparent 70%
+  );
+  border-color: rgba(232, 146, 12, 0.35);
+  box-shadow:
+    0 0 24px rgba(232, 146, 12, 0.25),
+    inset 0 0 16px rgba(232, 146, 12, 0.08);
+}
+.glow-tab.active .tab-icon {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px rgba(232, 146, 12, 0.6));
+}
+.glow-tab.active .tab-label {
+  color: var(--orange-bright);
+  font-weight: 600;
+}
+
+/* ===== GLOW-PILL — sub-mode primitive (sister of glow-tab) ===== */
+.glow-pills {
+  display: inline-flex;
+  gap: 6px;
+  background: var(--bg-deep);
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  width: fit-content;
+}
+.glow-pill {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all var(--motion);
+}
+.glow-pill__num {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--text-faint);
+  font-weight: 600;
+  transition: color var(--motion);
+}
+.glow-pill:hover {
+  color: var(--text);
+}
+.glow-pill.active {
+  color: var(--orange);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(232, 146, 12, 0.22) 0%,
+    rgba(232, 146, 12, 0.08) 40%,
+    transparent 70%
+  );
+  border-color: rgba(232, 146, 12, 0.35);
+  box-shadow:
+    0 0 24px rgba(232, 146, 12, 0.25),
+    inset 0 0 16px rgba(232, 146, 12, 0.08);
+}
+.glow-pill.active .glow-pill__num {
+  color: var(--orange-bright);
+}
+/* Cool variant — used in cool/cold contexts (Innen Kühlen, Kälte) */
+.glow-pill[data-mode='cool'].active {
+  color: var(--blue-bright);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(46, 124, 246, 0.22) 0%,
+    rgba(46, 124, 246, 0.08) 40%,
+    transparent 70%
+  );
+  border-color: rgba(46, 124, 246, 0.35);
+  box-shadow:
+    0 0 24px rgba(46, 124, 246, 0.25),
+    inset 0 0 16px rgba(46, 124, 246, 0.08);
+}
+.glow-pill[data-mode='cool'].active .glow-pill__num {
+  color: #80b8ff;
+}
+
+/* ===== MOBILE / NARROW VIEWPORT ===== */
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+  .kiosk-frame {
+    padding: 20px 18px;
+    border-radius: 18px;
+    min-height: auto;
+  }
+  .kiosk-header {
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+  }
+  .kiosk-logo {
+    height: 26px;
+  }
+  .kiosk-header .lang-toggle button {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+
+  /* Stack: content first, rail (now horizontal bottom strip) second */
+  .vD-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    min-height: auto;
+  }
+  .vD-content {
+    gap: 20px;
+    grid-row: 1;
+  }
+  .vD-rail {
+    grid-row: 2;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: stretch;
+    gap: 4px;
+    padding: 8px 4px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+  }
+  .vD-rail .glow-tab {
+    width: auto;
+    flex: 1;
+    padding: 12px 4px;
+    border-radius: 12px;
+    gap: 6px;
+  }
+  .vD-rail .glow-tab .tab-icon {
+    width: 18px;
+    height: 18px;
+  }
+  .vD-rail .glow-tab .tab-label {
+    font-size: 10px;
+  }
+
+  .vD-header h1 {
+    font-size: 28px;
+  }
+  .vD-header .kicker {
+    margin-bottom: 8px;
+    font-size: 10px;
+  }
+
+  .vD-canvas-area {
+    min-height: 480px;
+  }
+
+  .vD-controls {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

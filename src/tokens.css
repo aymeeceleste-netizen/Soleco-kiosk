@@ -1,0 +1,33 @@
+/* ============================================================
+   SOLECO design tokens (Rev. 2 redesign — system canonical).
+   Extracted verbatim from Soleco_Energie_D_Final & Innen_D_Final.
+   New code uses these. Older `--color-*` tokens in styles.css are
+   retained during the redesign migration; they'll be retired tab
+   by tab as each mode is ported to the new system.
+   ============================================================ */
+:root {
+  --bg: #0c0c0e;
+  --bg-deep: #08080a;
+  --surface: #161619;
+  --surface-2: #1c1c20;
+  --border: #2a2a2f;
+  --border-soft: #1f1f24;
+
+  --text: #e8e6e1;
+  --text-muted: #7a7872;
+  --text-faint: #4a4a48;
+
+  --orange: #e8920c;
+  --orange-bright: #ffa824;
+  --orange-glow: rgba(232, 146, 12, 0.35);
+  --orange-glow-strong: rgba(232, 146, 12, 0.55);
+  --orange-dim: rgba(232, 146, 12, 0.08);
+
+  --blue: #3b8beb;
+  --blue-bright: #5fa8ff;
+  --blue-glow: rgba(46, 124, 246, 0.35);
+
+  --green: #34c759;
+
+  --motion: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}

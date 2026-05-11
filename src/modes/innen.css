@@ -10,28 +10,51 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: transparent;
+}
+
+/* Stage spans the canvas with a small left offset so the SVG (centered
+   within the stage) shifts slightly right of the text overlay. */
+.hp-hero__stage {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 120px;
+  right: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: var(--color-bg);
+  overflow: hidden;
 }
 
 .hp-stage {
   position: relative;
-  /* Cap by HEIGHT, derive width from aspect — otherwise on a wide viewport
-     width: 94% of 1900 px gives a 1100×723 stage that overflows the hero. */
-  height: min(100%, 380px);
-  width: auto;
-  aspect-ratio: 700 / 460;
-  max-width: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .hp-svg {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* Text overlay — absolutely positioned on the left, sits over the SVG. */
+.hp-hero__text {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+  padding: 16px;
+  pointer-events: none;
+}
+.hp-hero__text > * {
+  pointer-events: auto;
 }
 
 /* Refrigerant blob colour transition */
@@ -105,78 +128,105 @@
 }
 
 /* ============================================================
-   Control bar — pills + heat-flow toggle
+   Control bar — canonical splits this into two slots:
+   .hp-mode-pills (caption slot, left) + .hp-aux-wrap (control slot, right)
    ============================================================ */
-.hp-control {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: var(--space-4, 16px);
+/* Mode-pill container — bg-deep with subtle border outline (canonical Innen) */
+.hp-mode-pills {
+  display: flex;
   align-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 0 var(--space-6, 24px);
+  padding-top: 28px;
+}
+.hp-aux-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 28px;
 }
 
 .hp-pills {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.06);
+  gap: 6px;
+  padding: 6px;
+  background: var(--bg-deep, #08080a);
+  border: 1px solid var(--border-soft, #1f1f24);
   border-radius: 999px;
-  height: 56px;
+  width: fit-content;
 }
 .hp-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2, 8px);
-  min-width: 160px;
-  height: 48px;
-  padding: 0 var(--space-3, 12px);
-  border: 0;
+  gap: 10px;
+  padding: 12px 22px;
+  border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
-  color: var(--color-text-muted);
-  font-size: var(--type-small, 13px);
+  color: var(--text-muted, #7a7872);
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition:
-    background var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1)),
-    color var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1)),
-    box-shadow var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: none;
 }
 .hp-pill__num {
-  font-size: var(--type-tiny, 11px);
+  font-size: 10px;
   letter-spacing: 0.18em;
-  color: var(--color-text-subtle);
-  transition: color var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+  color: var(--text-faint, #4a4a48);
+  font-weight: 600;
+  transition: color 0.4s;
 }
-.hp-pill[aria-pressed='true'][data-mode='heizen'] {
-  background: var(--gradient-accent);
-  color: #1a1614;
-  box-shadow: 0 1px 6px rgba(246, 160, 0, 0.35);
-}
-.hp-pill[aria-pressed='true'][data-mode='kuehlen'] {
-  background: linear-gradient(135deg, #2e7cf6, #1d4ed8);
-  color: #ffffff;
-  box-shadow: 0 1px 6px rgba(46, 124, 246, 0.4);
-}
-.hp-pill[aria-pressed='true'][data-mode='heizen'] .hp-pill__num {
-  color: rgba(26, 22, 20, 0.7);
-}
-.hp-pill[aria-pressed='true'][data-mode='kuehlen'] .hp-pill__num {
-  color: rgba(255, 255, 255, 0.7);
+.hp-pill:hover {
+  color: var(--text, #e8e6e1);
 }
 
-/* Heat-flow toggle */
+/* Active state (heat) — outlined orange wash, soft glow */
+.hp-pill[aria-pressed='true'][data-mode='heizen'] {
+  color: var(--orange, #e8920c);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(232, 146, 12, 0.22) 0%,
+    rgba(232, 146, 12, 0.08) 40%,
+    transparent 70%
+  );
+  border-color: rgba(232, 146, 12, 0.35);
+  box-shadow:
+    0 0 24px rgba(232, 146, 12, 0.25),
+    inset 0 0 16px rgba(232, 146, 12, 0.08);
+}
+.hp-pill[aria-pressed='true'][data-mode='heizen'] .hp-pill__num {
+  color: var(--orange-bright, #ffa824);
+}
+
+/* Active state (cool) — outlined blue wash, soft glow */
+.hp-pill[aria-pressed='true'][data-mode='kuehlen'] {
+  color: #5fa8ff;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(46, 124, 246, 0.22) 0%,
+    rgba(46, 124, 246, 0.08) 40%,
+    transparent 70%
+  );
+  border-color: rgba(46, 124, 246, 0.35);
+  box-shadow:
+    0 0 24px rgba(46, 124, 246, 0.25),
+    inset 0 0 16px rgba(46, 124, 246, 0.08);
+}
+.hp-pill[aria-pressed='true'][data-mode='kuehlen'] .hp-pill__num {
+  color: #80b8ff;
+}
+
+/* Heat-flow toggle — canonical Innen override: bordered dark track, glowing
+   orange dot when on. Track 38×22, dot 16×16. */
 .hp-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  font-size: var(--type-small, 13px);
-  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted, #7a7872);
   user-select: none;
 }
 .hp-toggle input {
@@ -186,31 +236,34 @@
 }
 .hp-toggle__track {
   position: relative;
-  width: 44px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.1);
+  width: 38px;
+  height: 22px;
+  background: var(--bg-deep, #08080a);
+  border: 1px solid var(--border-soft, #1f1f24);
   border-radius: 999px;
-  transition: background var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+  transition: all 0.3s;
   flex-shrink: 0;
 }
 .hp-toggle__dot {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: var(--color-text-muted);
+  background: var(--text-muted, #7a7872);
   transition:
-    transform var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1)),
-    background var(--motion-fast, 0.2s) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+    transform 0.3s,
+    background 0.3s;
 }
 .hp-toggle input:checked + .hp-toggle__track {
-  background: rgba(246, 160, 0, 0.25);
+  background: rgba(232, 146, 12, 0.18);
+  border-color: rgba(232, 146, 12, 0.4);
 }
 .hp-toggle input:checked + .hp-toggle__track .hp-toggle__dot {
-  transform: translateX(20px);
-  background: var(--color-accent);
+  transform: translateX(16px);
+  background: var(--orange, #e8920c);
+  box-shadow: 0 0 12px var(--orange-glow, rgba(232, 146, 12, 0.35));
 }
 
 /* ============================================================
@@ -255,12 +308,36 @@
 }
 
 .hp-hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--text-faint, #4a4a48);
+  letter-spacing: 0.02em;
+  text-align: left;
+  font-style: italic;
+}
+
+/* Explainer card — lives in the left column of the hero */
+.hp-explainer {
   margin: 0;
-  font-size: var(--type-tiny, 12px);
-  color: var(--color-text-subtle, #7a7370);
-  letter-spacing: 0.01em;
-  text-align: center;
-  padding: 0 16px;
+  padding: 20px 24px;
+  background: var(--surface, #161619);
+  border: 1px solid var(--border-soft, #1f1f24);
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text, #e8e6e1);
+  text-align: left;
+}
+.hp-explainer strong {
+  font-weight: 600;
+  color: var(--orange, #e8920c);
+}
+.hp-explainer[data-mode='kuehlen'] strong {
+  color: #5fa3ff;
+}
+.hp-explainer em {
+  font-style: italic;
+  color: var(--orange-bright, #ffa824);
 }
 
 /* ============================================================

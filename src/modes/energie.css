@@ -1,0 +1,214 @@
+/* ============================================================
+   Energie tab — Rev. 2 redesign (system canonical).
+   Ported verbatim from Soleco_Energie_D_Final (3).html.
+   ============================================================ */
+
+/* The canvas + canvas-anchored overlay (Strom badge) live here. */
+.canvas-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.canvas-host canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Strom (electricity) badge — top-center of the canvas. */
+.elec-overlay {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  text-align: center;
+}
+.elec-overlay .stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-faint);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+.elec-overlay .elec-val {
+  font-weight: 700;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Big stat numbers — bottom-corner overlay inside the canvas area. */
+.stat-air-num {
+  font-size: 36px;
+  font-weight: 200;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.stat-out-num {
+  font-size: 64px;
+  font-weight: 200;
+  color: var(--orange);
+  letter-spacing: -0.04em;
+  text-shadow: 0 0 60px var(--orange-glow);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+}
+.stat-air-num .green {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Stats overlay strip — anchored to the bottom of vD-canvas-area. */
+.vD-stats-overlay {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 2;
+}
+.vD-stat .kicker {
+  margin-bottom: 6px;
+}
+.vD-stat-out {
+  text-align: right;
+}
+
+/* COP pill — used in the right column of vD-controls. */
+.cop-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--orange-dim);
+  border: 1px solid rgba(232, 146, 12, 0.3);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--orange-bright);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Slider — Energie-specific styling per canonical. */
+.slider-block input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--bg-deep);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+.slider-block input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  background: var(--orange);
+  border-radius: 50%;
+  cursor: grab;
+  box-shadow: 0 0 20px var(--orange-glow-strong);
+  border: 0;
+}
+.slider-block input[type='range']::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  background: var(--orange);
+  border-radius: 50%;
+  cursor: grab;
+  box-shadow: 0 0 20px var(--orange-glow-strong);
+  border: 0;
+}
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+.slider-block {
+  width: 100%;
+}
+.slider-labels span {
+  transition: color 0.2s;
+}
+.slider-labels span.hot {
+  color: var(--orange);
+  font-weight: 700;
+}
+
+/* Layout columns inside vD-controls. */
+.vD-temp .header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.vD-temp .temp-readout {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--orange);
+  white-space: nowrap;
+}
+.vD-cop-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+/* Mobile / portrait variant — canvas-area becomes taller, stats become a
+   footer strip, controls stack. */
+@media (max-width: 768px) {
+  .vD-canvas-area {
+    min-height: 480px;
+    aspect-ratio: 0.78;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+  }
+  .vD-canvas-area .canvas-host {
+    flex: 1;
+    min-height: 420px;
+  }
+  .vD-stats-overlay {
+    position: static;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 12px 16px 4px;
+    pointer-events: auto;
+  }
+  .stat-air-num {
+    font-size: 28px;
+  }
+  .stat-out-num {
+    font-size: 44px;
+  }
+  .vD-cop-area {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .vD-cop-area > div {
+    font-size: 11px;
+  }
+  .elec-overlay {
+    top: 8px;
+  }
+  .elec-overlay .stat-label {
+    font-size: 9px;
+  }
+  .elec-overlay .elec-val {
+    font-size: 13px;
+  }
+}

@@ -1,5 +1,15 @@
+@import '@fontsource/inter/300.css';
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/inter/800.css';
+/* Inter weight 200 for big-number stats — fontsource ships 200 too */
+@import '@fontsource/inter/200.css';
+
+/* New design-system layer (Rev. 2 redesign — system canonical) */
+@import './tokens.css';
+@import './primitives.css';
 
 /* ----------------------------------------------------------
    Design tokens — sized for iPad 11" (1194×834) primary
@@ -115,11 +125,9 @@ button:focus-visible {
 }
 
 #app {
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  display: grid;
-  grid-template-rows: var(--topbar-h) 1fr var(--bottom-h);
+  width: 100%;
+  height: calc(100dvh - 32px);
+  display: block;
   background: var(--color-bg);
   overflow: hidden;
 }
@@ -416,180 +424,7 @@ button:focus-visible {
   padding: 0 var(--space-6);
 }
 
-/* ----------------------------------------------------------
-   Energie hero — canvas animation behind a centered photo of
-   the unit. Air wisps come in from the left, an electric pulse
-   drops in from the top, and orange heat pulses radiate to the
-   house at the right. All flows are drawn in screen-space
-   pixels so the canvas resizes via ResizeObserver.
-   ---------------------------------------------------------- */
-/* Hero fills the kiosk shell's allotted slot exactly — the canvas + the
-   stats overlay both live inside the scene which fills the hero. */
-.energie-hero {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.energie-scene {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-/* Stats row sits in normal flow under the scene — not absolute. */
-/* Stats row is an absolute overlay anchored to the bottom of the scene:
-   air pinned bottom-left, heat (with COP) pinned bottom-right, both
-   floating over the canvas animation. */
-.energie-stats-row {
-  position: absolute;
-  top: 8px;
-  bottom: auto;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0 32px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.energie-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* AUSSENLUFT — sits just above the air-flow wisps that converge on the
-   unit at cy = H * 0.68; placing it at top:40% keeps clear separation
-   from the STROM label above and the AUS DER LUFT stat below. */
-.energie-aussenluft {
-  position: absolute;
-  top: 40%;
-  left: 2%;
-  font-size: var(--type-tiny, 10px);
-  letter-spacing: 0.18em;
-  color: rgba(184, 176, 168, 0.5);
-  font-weight: 600;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Strom (electricity input) — centered above the unit. */
-.energie-elec {
-  position: absolute;
-  top: 4%;
-  left: 50%;
-  transform: translateX(-50%);
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-  pointer-events: none;
-  z-index: 2;
-}
-.energie-elec__label {
-  font-size: var(--type-tiny);
-  letter-spacing: 0.18em;
-  color: var(--color-text-subtle);
-  text-transform: uppercase;
-}
-.energie-elec__val {
-  font-size: var(--type-medium);
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1;
-}
-
-/* Stat blocks live inside .energie-stats-row, in normal flow.
-   Air pins to the left wall, heat to the right wall. */
-.energie-stat-block--air { text-align: left; }
-.energie-stat-block--heat { text-align: right; }
-
-.energie-stat__label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--color-text-muted, #7a7872);
-  margin-bottom: 5px;
-}
-.energie-stat-block--air .energie-stat__num {
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--color-text, #e8e6e1);
-  font-feature-settings: 'tnum' 1;
-}
-.energie-stat-block--heat .energie-stat__num {
-  font-size: 52px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--orange, #e8920c);
-  text-shadow: 0 0 50px rgba(232, 146, 12, 0.35);
-  font-feature-settings: 'tnum' 1;
-}
-.energie-stat__unit {
-  font-size: 13px;
-  color: var(--color-text-muted, #7a7872);
-  margin-top: 3px;
-}
-.energie-stat__free {
-  color: #4ade80;
-  font-weight: 700;
-}
-
-.energie-cop-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(232, 146, 12, 0.08);
-  border: 1px solid rgba(232, 146, 12, 0.2);
-  border-radius: 20px;
-  padding: 5px 12px;
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--orange, #e8920c);
-  font-weight: 500;
-}
-.energie-cop-badge__val {
-  font-weight: 700;
-  font-feature-settings: 'tnum' 1;
-}
-
-@media (max-width: 768px) {
-  .energie-scene {
-    min-height: 280px;
-  }
-  .energie-stats-row {
-    padding: 6px 16px;
-  }
-  .energie-stat-block--heat .energie-stat__num {
-    font-size: 36px;
-  }
-}
-
-/* ----------------------------------------------------------
-   Energie control — temperature slider (bar is canvas-drawn now)
-   ---------------------------------------------------------- */
-.energie-control {
-  width: 100%;
-  padding: 0;
-}
-
-/* Scope slider sizing to the Energie control so other modes' sliders are
-   unaffected. The slider-wrap is the centered element at 480px max. */
-.energie-control .slider-wrap {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 2px 0;
-}
-.energie-control .slider-ticks {
-  margin-top: 2px;
-}
+/* Old `.energie-*` styles retired — Energie tab now uses canonical primitives (see src/modes/energie.css and src/primitives.css). */
 
 /* Slider */
 .slider-wrap {

@@ -9,10 +9,20 @@ type Dict = {
     geraeusch: { label: string; sub: string };
     kosten: { label: string; sub: string };
   };
+  /** Rev. 2 redesign: editorial kicker template, e.g. "Kapitel 01 · Energie". */
+  chapter: (idx: string, label: string) => string;
   shellPlaceholderCaption: string;
   shellPlaceholderControl: string;
   energie: {
     caption: string;
+    /** Rev. 2 heroline — "1 kWh rein. <em>5 kWh</em> raus." (live-updates with COP) */
+    heroline: (kwhOut: number) => string;
+    /** Rev. 2 left stat kicker — "Aus der Luft · gratis" */
+    statKickerAir: string;
+    /** Rev. 2 slider header — "Aussentemperatur · ziehen zum Erkunden" */
+    sliderHeader: string;
+    /** Rev. 2 COP echo — "Energieverhältnis bei +7°C" */
+    copEcho: (tempStr: string) => string;
     /** "STROM" pill above the unit */
     electricityLabel: string;
     /** "1 kWh Strom" / "1 kWh electricity" — the value next to the bolt */
@@ -149,11 +159,16 @@ const de: Dict = {
     geraeusch: { label: 'Geräusch', sub: 'Leiser als ein Kühlschrank' },
     kosten: { label: 'Kosten', sub: 'Ihre Ersparnis' },
   },
+  chapter: (idx, label) => `Kapitel ${idx} · ${label}`,
   shellPlaceholderCaption: 'Tippen Sie einen Modus, um zu starten.',
   shellPlaceholderControl: 'Modus wählen',
   energie: {
     caption:
       'Wärmepumpe macht keine Wärme — sie holt sie aus der Luft. Wie eine Velopumpe rückwärts.',
+    heroline: (kwh) => `1 kWh rein. <em>${kwh} kWh</em> raus.`,
+    statKickerAir: 'Aus der Luft · gratis',
+    sliderHeader: 'Aussentemperatur · ziehen zum Erkunden',
+    copEcho: (tempStr) => `Energieverhältnis bei ${tempStr}`,
     electricityLabel: 'Strom',
     electricityIn: '1 kWh',
     outsideAirLabel: 'Aussenluft',
@@ -286,10 +301,15 @@ const en: Dict = {
     geraeusch: { label: 'Sound', sub: 'Quieter than a fridge' },
     kosten: { label: 'Cost', sub: 'Your savings' },
   },
+  chapter: (idx, label) => `Chapter ${idx} · ${label}`,
   shellPlaceholderCaption: 'Tap a mode to begin.',
   shellPlaceholderControl: 'Pick a mode',
   energie: {
     caption: 'A heat pump doesn’t make heat — it moves it from the air. Like a bicycle pump in reverse.',
+    heroline: (kwh) => `1 kWh in. <em>${kwh} kWh</em> out.`,
+    statKickerAir: 'From the air · free',
+    sliderHeader: 'Outdoor temp · drag to explore',
+    copEcho: (tempStr) => `Energy ratio at ${tempStr}`,
     electricityLabel: 'Electricity',
     electricityIn: '1 kWh',
     outsideAirLabel: 'Outdoor air',

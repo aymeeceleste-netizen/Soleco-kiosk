@@ -33,8 +33,8 @@ const COLOR = {
   coldLiq: '#2e7cf6',
 } as const;
 
-const VIEWBOX_W = 700;
-const VIEWBOX_H = 460;
+const VIEWBOX_W = 860;
+const VIEWBOX_H = 520;
 const SPEED = 60;
 
 let instanceCounter = 0;
@@ -48,36 +48,43 @@ interface AnimRefs {
 export function mountInnen(): ModeView {
   const id = `innen-${++instanceCounter}`;
 
-  // ---- Hero -------------------------------------------------
+  // ---- Hero: 2-column split, explainer left / animation right ------------
   const hero = document.createElement('div');
   hero.className = 'hp-hero';
   hero.dataset.mode = store.get().energieMode;
 
+  const textCol = document.createElement('div');
+  textCol.className = 'hp-hero__text';
+  hero.appendChild(textCol);
+
+  const explainer = document.createElement('div');
+  explainer.className = 'hp-explainer';
+  const explainerText = document.createElement('span');
+  explainerText.className = 'hp-explainer__text';
+  explainer.appendChild(explainerText);
+  textCol.appendChild(explainer);
+
+  // Hint moved into the text column — frees vertical space in the stage column
+  // so the SVG can grow larger.
+  const hint = document.createElement('p');
+  hint.className = 'hp-hint';
+  textCol.appendChild(hint);
+
+  const stageCol = document.createElement('div');
+  stageCol.className = 'hp-hero__stage';
+  hero.appendChild(stageCol);
+
   const stage = document.createElement('div');
   stage.className = 'hp-stage';
-  hero.appendChild(stage);
+  stageCol.appendChild(stage);
 
   const svg = buildSvg(id);
   stage.appendChild(svg);
 
-  // Hint under the schematic — invites users to tap the compressor / valve.
-  // Click handlers (modal close-ups) come in pass 2; for now the SVG groups
-  // are styled as clickable so the affordance is visible.
-  const hint = document.createElement('p');
-  hint.className = 'hp-hint';
-  hero.appendChild(hint);
-
-  // ---- Caption ---------------------------------------------
+  // ---- Caption slot = mode pills (canonical: .hp-mode-pills) ----------
   const caption = document.createElement('div');
-  caption.className = 'mode-caption';
-  const captionInner = document.createElement('span');
-  captionInner.className = 'hp-caption';
-  caption.appendChild(captionInner);
-
-  // ---- Control ---------------------------------------------
-  const control = document.createElement('div');
-  control.className = 'mode-control hp-control';
-  control.dataset.mode = store.get().energieMode;
+  caption.className = 'mode-caption hp-mode-pills';
+  caption.dataset.mode = store.get().energieMode;
 
   const pills = document.createElement('div');
   pills.className = 'hp-pills';
@@ -86,11 +93,15 @@ export function mountInnen(): ModeView {
   const pillHeat = makePill('heizen', '01');
   const pillCool = makePill('kuehlen', '02');
   pills.append(pillHeat.btn, pillCool.btn);
+  caption.appendChild(pills);
 
-  const spacer = document.createElement('div');
+  // ---- Control slot = heat-flow toggle (canonical: .hp-aux-wrap) -------
+  const control = document.createElement('div');
+  control.className = 'mode-control hp-aux-wrap';
+  control.dataset.mode = store.get().energieMode;
+
   const toggle = makeToggle();
-
-  control.append(pills, spacer, toggle.label);
+  control.appendChild(toggle.label);
 
   // ---- Pill / toggle handlers -------------------------------
   pillHeat.btn.addEventListener('click', () =>
@@ -164,14 +175,13 @@ export function mountInnen(): ModeView {
     toggle.labelText.textContent = dict.showHeatFlow;
 
     hint.textContent = dict.hintCaption;
+    explainerText.innerHTML = mode === 'heizen' ? dict.heat.explainer : dict.cool.explainer;
+    explainer.dataset.mode = mode;
 
     if (anim) {
       anim.setLabels(dict, mode);
       anim.setMode(mode);
     }
-
-    captionInner.innerHTML = mode === 'heizen' ? dict.heat.explainer : dict.cool.explainer;
-    captionInner.dataset.mode = mode;
 
     // Re-pull modal copy/canvas labels when the kiosk language toggles.
     if (lastLang !== lang) {
@@ -273,90 +283,125 @@ function buildSvg(id: string): SVGSVGElement {
       </symbol>
     </defs>
 
-    <rect x="0" y="0" width="700" height="320" fill="var(--color-bg, #1a1614)"/>
-    <rect x="0" y="320" width="700" height="140" fill="var(--color-surface-lower, #15110f)"/>
-    <line x1="0" y1="320" x2="700" y2="320" stroke="var(--color-divider, rgba(255,255,255,0.08))" stroke-width="1"/>
+    <line x1="0" y1="380" x2="860" y2="380" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
 
-    <text id="hp-indoor-label" x="155" y="32" text-anchor="middle" font-size="11" fill="var(--color-text-subtle, #7a7370)" letter-spacing="0.08em">INNENLUFT</text>
-    <text id="hp-indoor-temp" x="155" y="58" text-anchor="middle" font-size="22" font-weight="500" fill="var(--color-text, #faf8f5)">21°C</text>
-    <text id="hp-outdoor-label" x="500" y="32" text-anchor="middle" font-size="11" fill="var(--color-text-subtle, #7a7370)" letter-spacing="0.08em">AUSSENLUFT</text>
-    <text id="hp-outdoor-temp" x="500" y="58" text-anchor="middle" font-size="22" font-weight="500" fill="var(--color-text, #faf8f5)">−2°C</text>
+    <text id="hp-indoor-label" x="155" y="32" text-anchor="middle" font-size="11" fill="#4a4a48" letter-spacing="0.08em">INNENLUFT</text>
+    <text id="hp-indoor-temp" x="155" y="58" text-anchor="middle" font-size="22" font-weight="500" fill="#e8e6e1">21°C</text>
+    <text id="hp-outdoor-label" x="500" y="32" text-anchor="middle" font-size="11" fill="#4a4a48" letter-spacing="0.08em">AUSSENLUFT</text>
+    <text id="hp-outdoor-temp" x="500" y="58" text-anchor="middle" font-size="22" font-weight="500" fill="#e8e6e1">−2°C</text>
 
-    <g id="hp-house" stroke="var(--color-text-subtle, #7a7370)" fill="none">
-      <polygon points="60,180 160,110 260,180" stroke-width="1.2" stroke-linejoin="round"/>
-      <rect x="80" y="180" width="160" height="160" stroke-width="1.2"/>
-      <rect x="100" y="200" width="40" height="40" fill="rgba(46,124,246,0.12)" stroke="#2e7cf6" stroke-width="0.8" stroke-opacity="0.6"/>
-      <line x1="120" y1="200" x2="120" y2="240" stroke="#2e7cf6" stroke-width="0.5" stroke-opacity="0.6"/>
-      <line x1="100" y1="220" x2="140" y2="220" stroke="#2e7cf6" stroke-width="0.5" stroke-opacity="0.6"/>
-      <rect x="190" y="270" width="40" height="70" stroke-width="0.8"/>
-      <circle cx="222" cy="306" r="1.6" fill="var(--color-text-subtle, #7a7370)" stroke="none"/>
+    <g id="hp-house" stroke="#4a4a48" fill="none">
+      <polygon points="60,200 160,130 260,200" stroke-width="1.2" stroke-linejoin="round"/>
+      <rect x="80" y="200" width="160" height="190" stroke-width="1.2"/>
+      <rect x="100" y="220" width="40" height="40" fill="rgba(46,124,246,0.08)" stroke="#2e7cf6" stroke-width="0.8" stroke-opacity="0.4"/>
+      <line x1="120" y1="220" x2="120" y2="260" stroke="#2e7cf6" stroke-width="0.5" stroke-opacity="0.4"/>
+      <line x1="100" y1="240" x2="140" y2="240" stroke="#2e7cf6" stroke-width="0.5" stroke-opacity="0.4"/>
+      <rect x="190" y="310" width="40" height="80" stroke-width="0.8" stroke="#4a4a48"/>
+      <circle cx="222" cy="350" r="1.6" fill="#4a4a48" stroke="none"/>
       <g>
-        <rect x="100" y="324" width="80" height="14" rx="3" stroke-width="0.8" fill="rgba(255,255,255,0.03)"/>
-        <line x1="108" y1="331" x2="172" y2="331" stroke-width="0.5" stroke-dasharray="3 3" stroke-opacity="0.6"/>
+        <rect x="100" y="374" width="80" height="14" rx="3" stroke="#4a4a48" stroke-width="0.8" fill="rgba(255,255,255,0.02)"/>
+        <line x1="108" y1="381" x2="172" y2="381" stroke="#4a4a48" stroke-width="0.5" stroke-dasharray="3 3" stroke-opacity="0.5"/>
       </g>
     </g>
 
     <g>
-      <text id="hp-indoor-coil-name" x="60" y="380" text-anchor="middle" font-size="11" font-weight="500" fill="var(--color-text, #faf8f5)">Innenwärmetauscher</text>
-      <text id="hp-indoor-coil-sub-1" x="60" y="394" text-anchor="middle" font-size="9" fill="var(--color-text-muted, #b8b0a8)">(gibt Wärme</text>
-      <text id="hp-indoor-coil-sub-2" x="60" y="405" text-anchor="middle" font-size="9" fill="var(--color-text-muted, #b8b0a8)">in den Raum ab)</text>
+      <text id="hp-indoor-coil-name" x="60" y="436" text-anchor="middle" font-size="11" font-weight="500" fill="#e8e6e1">Innenwärmetauscher</text>
+      <text id="hp-indoor-coil-sub-1" x="60" y="450" text-anchor="middle" font-size="9" fill="#7a7872">(gibt Wärme</text>
+      <text id="hp-indoor-coil-sub-2" x="60" y="461" text-anchor="middle" font-size="9" fill="#7a7872">in den Raum ab)</text>
     </g>
 
-    <g>
-      <rect x="290" y="170" width="350" height="220" rx="12" fill="var(--color-surface, #25201c)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-      <text id="hp-outdoor-name" x="455" y="160" text-anchor="middle" font-size="11" font-weight="500" fill="var(--color-text, #faf8f5)" letter-spacing="0.04em">SOLECO Wärmepumpe</text>
-      <line x1="290" y1="195" x2="640" y2="195" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+    <g id="hp-outdoor-unit">
+      <rect x="280" y="130" width="380" height="290" rx="14" fill="#1d1c1c" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <rect x="285" y="135" width="370" height="280" rx="12" fill="#18181b"/>
+      <rect x="565" y="132" width="93" height="286" rx="14" fill="#1d1c1c" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
+      <rect x="569" y="136" width="85" height="278" rx="12" fill="#141416"/>
 
-      <g id="hp-led-wide" filter="url(#${fWide})" opacity="0.55" color="#f6a000">
-        <use href="#${sym}" x="572" y="198" width="32" height="34" fill="currentColor"/>
-      </g>
-      <g id="hp-led-tight" filter="url(#${fTight})" opacity="0.85" color="#f6a000">
-        <use href="#${sym}" x="572" y="198" width="32" height="34" fill="currentColor"/>
-      </g>
-      <g id="hp-led-main" color="#f6a000">
-        <use href="#${sym}" x="572" y="198" width="32" height="34" fill="currentColor"/>
+      <g opacity="0.4" stroke="none">
+        <rect x="422" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="433" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="444" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="455" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="466" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="477" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="488" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="499" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="510" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="521" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="532" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="543" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
+        <rect x="554" y="148" width="2.5" height="250" rx="1" fill="#1d1c1c"/>
       </g>
 
-      <circle cx="535" cy="290" r="48" fill="none" stroke="var(--color-text-subtle, #7a7370)" stroke-width="1"/>
-      <g id="hp-fan-blades" transform="translate(535 290)">
-        <path d="M 0 -40 Q 11 -20 0 0 Q -11 -20 0 -40 Z" fill="rgba(184,176,168,0.5)"/>
-        <path d="M 0 -40 Q 11 -20 0 0 Q -11 -20 0 -40 Z" fill="rgba(184,176,168,0.5)" transform="rotate(120)"/>
-        <path d="M 0 -40 Q 11 -20 0 0 Q -11 -20 0 -40 Z" fill="rgba(184,176,168,0.5)" transform="rotate(240)"/>
-        <circle r="5" fill="var(--color-text-subtle, #7a7370)"/>
+      <line x1="415" y1="145" x2="415" y2="408" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="563" y1="145" x2="563" y2="408" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+
+      <text id="hp-outdoor-name" x="470" y="118" text-anchor="middle" font-size="11" font-weight="500" fill="#e8e6e1" letter-spacing="0.04em">SOLECO Wärmepumpe</text>
+
+      <g id="hp-led-wide" filter="url(#${fWide})" opacity="0.55" color="#e8920c">
+        <use href="#${sym}" x="596" y="155" width="28" height="30" fill="currentColor"/>
       </g>
-      <text id="hp-outdoor-coil-name" x="535" y="357" text-anchor="middle" font-size="11" font-weight="500" fill="var(--color-text, #faf8f5)">Aussenwärmetauscher</text>
-      <text id="hp-outdoor-coil-sub" x="535" y="371" text-anchor="middle" font-size="9" fill="var(--color-text-muted, #b8b0a8)">(holt Wärme aus der Aussenluft)</text>
+      <g id="hp-led-tight" filter="url(#${fTight})" opacity="0.85" color="#e8920c">
+        <use href="#${sym}" x="596" y="155" width="28" height="30" fill="currentColor"/>
+      </g>
+      <g id="hp-led-main" color="#e8920c">
+        <use href="#${sym}" x="596" y="155" width="28" height="30" fill="currentColor"/>
+      </g>
 
       <g id="hp-expansion" class="hp-component">
-        <rect class="hp-pulse" x="316" y="204" width="88" height="52" rx="8" fill="none" stroke="#f6a000" stroke-width="1.5"/>
-        <rect x="320" y="208" width="80" height="44" rx="6" fill="var(--color-bg, #1a1614)" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
-        <polygon points="354,222 366,222 360,234" fill="none" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
-        <polygon points="354,246 366,246 360,234" fill="none" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
-        <text id="hp-expansion-name" x="360" y="269" text-anchor="middle" font-size="11" font-weight="500" fill="var(--color-text, #faf8f5)">Expansionsventil</text>
-        <text id="hp-expansion-sub" x="360" y="282" text-anchor="middle" font-size="9" fill="var(--color-text-muted, #b8b0a8)">(senkt den Druck)</text>
+        <rect class="hp-pulse" x="296" y="195" width="88" height="52" rx="8" fill="none" stroke="#e8920c" stroke-width="1.5"/>
+        <rect x="300" y="199" width="80" height="44" rx="6" fill="#0c0c0e" stroke="#4a4a48" stroke-width="0.8"/>
+        <polygon points="334,212 346,212 340,224" fill="none" stroke="#4a4a48" stroke-width="0.8"/>
+        <polygon points="334,236 346,236 340,224" fill="none" stroke="#4a4a48" stroke-width="0.8"/>
+        <text id="hp-expansion-name" x="340" y="262" text-anchor="middle" font-size="10" font-weight="500" fill="#e8e6e1">Expansionsventil</text>
+        <text id="hp-expansion-sub" x="340" y="275" text-anchor="middle" font-size="8.5" fill="#7a7872">(senkt den Druck)</text>
       </g>
 
-      <g id="hp-compressor" class="hp-component">
-        <rect class="hp-pulse hp-pulse--delayed" x="316" y="316" width="88" height="58" rx="8" fill="none" stroke="#f6a000" stroke-width="1.5"/>
-        <rect x="320" y="320" width="80" height="50" rx="6" fill="var(--color-bg, #1a1614)" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
-        <circle cx="360" cy="345" r="13" fill="none" stroke="var(--color-text-subtle, #7a7370)" stroke-width="0.8"/>
-        <circle id="hp-comp-piston" cx="360" cy="345" r="5" fill="#7a7370"/>
-        <text id="hp-compressor-name" x="360" y="385" text-anchor="middle" font-size="11" font-weight="500" fill="var(--color-text, #faf8f5)">Kompressor</text>
-        <text id="hp-compressor-sub" x="360" y="398" text-anchor="middle" font-size="9" fill="var(--color-text-muted, #b8b0a8)">(erhöht den Druck)</text>
+      <circle cx="490" cy="275" r="52" fill="none" stroke="#4a4a48" stroke-width="0.8"/>
+      <g id="hp-fan-blades" transform="translate(490 275)">
+        <path d="M 0 -44 Q 11 -22 0 0 Q -11 -22 0 -44 Z" fill="rgba(140,138,135,0.3)"/>
+        <path d="M 0 -44 Q 11 -22 0 0 Q -11 -22 0 -44 Z" fill="rgba(140,138,135,0.3)" transform="rotate(120)"/>
+        <path d="M 0 -44 Q 11 -22 0 0 Q -11 -22 0 -44 Z" fill="rgba(140,138,135,0.3)" transform="rotate(240)"/>
+        <circle r="5" fill="#4a4a48"/>
       </g>
+      <text id="hp-outdoor-coil-name" x="490" y="345" text-anchor="middle" font-size="10" font-weight="500" fill="#e8e6e1">Aussenwärmetauscher</text>
+      <text id="hp-outdoor-coil-sub" x="490" y="358" text-anchor="middle" font-size="8.5" fill="#7a7872">(holt Wärme aus der Aussenluft)</text>
+
+      <g id="hp-compressor" class="hp-component">
+        <rect class="hp-pulse hp-pulse--delayed" x="296" y="318" width="88" height="58" rx="8" fill="none" stroke="#e8920c" stroke-width="1.5"/>
+        <rect x="300" y="322" width="80" height="50" rx="6" fill="#0c0c0e" stroke="#4a4a48" stroke-width="0.8"/>
+        <circle cx="340" cy="347" r="13" fill="none" stroke="#4a4a48" stroke-width="0.8"/>
+        <circle id="hp-comp-piston" cx="340" cy="347" r="5" fill="#4a4a48"/>
+        <text id="hp-compressor-name" x="340" y="389" text-anchor="middle" font-size="10" font-weight="500" fill="#e8e6e1">Kompressor</text>
+        <text id="hp-compressor-sub" x="340" y="402" text-anchor="middle" font-size="8.5" fill="#7a7872">(erhöht den Druck)</text>
+      </g>
+
+      <rect x="310" y="420" width="55" height="6" rx="2" fill="#1d1c1c"/>
+      <rect x="590" y="420" width="55" height="6" rx="2" fill="#1d1c1c"/>
     </g>
 
     <path id="hp-loop"
-      d="M 180 331 L 220 331 L 220 237 L 320 237
-         M 400 237 L 470 237 L 470 251 L 535 251
-         M 535 329 L 470 329 L 470 345 L 400 345
-         M 320 345 L 310 345 L 310 380 L 100 380 L 100 331"
-      fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3" stroke-linejoin="round"/>
+      d="M 180 381
+         L 220 381
+         L 220 221
+         L 300 221
+         M 380 221
+         L 490 221
+         L 490 252
+         M 490 298
+         L 490 347
+         L 380 347
+         M 300 347
+         L 290 347
+         L 290 440
+         L 100 440
+         L 100 381"
+      fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3" stroke-linejoin="round"/>
 
     <path id="hp-loop-master"
-      d="M 180 331 L 220 331 L 220 237 L 320 237 L 360 237 L 400 237 L 470 237 L 470 251 L 535 251 L 535 290 L 535 329 L 470 329 L 470 345 L 400 345 L 360 345 L 320 345 L 310 345 L 310 380 L 100 380 L 100 331 Z"
+      d="M 180 381 L 220 381 L 220 221 L 300 221 L 340 221 L 380 221 L 490 221 L 490 275 L 490 347 L 380 347 L 340 347 L 300 347 L 290 347 L 290 440 L 100 440 L 100 381 Z"
       fill="none" stroke="none"/>
 
+    <g id="hp-airflow-particles" opacity="0.6"></g>
     <g id="hp-heat-particles"></g>
     <g id="hp-refrigerant-particles" filter="url(#${fParticle})"></g>
   `;
@@ -371,6 +416,7 @@ function startAnimation(svg: SVGSVGElement, getState: () => KioskState): AnimRef
   const loop = svg.querySelector<SVGGeometryElement>('#hp-loop-master')!;
   const refLayer = svg.querySelector<SVGGElement>('#hp-refrigerant-particles')!;
   const heatLayer = svg.querySelector<SVGGElement>('#hp-heat-particles')!;
+  const airLayer = svg.querySelector<SVGGElement>('#hp-airflow-particles')!;
   const compPiston = svg.querySelector<SVGCircleElement>('#hp-comp-piston')!;
   const fanBlades = svg.querySelector<SVGGElement>('#hp-fan-blades')!;
   const ledMain = svg.querySelector<SVGGElement>('#hp-led-main')!;
@@ -401,10 +447,10 @@ function startAnimation(svg: SVGSVGElement, getState: () => KioskState): AnimRef
     p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h;
 
   const zones = {
-    indoor: { x: 96, y: 322, w: 88, h: 18 },
-    expansion: { x: 320, y: 208, w: 80, h: 44 },
-    outdoor: { x: 487, y: 240, w: 100, h: 100 },
-    compressor: { x: 320, y: 320, w: 80, h: 50 },
+    indoor: { x: 96, y: 372, w: 88, h: 18 },
+    expansion: { x: 300, y: 199, w: 80, h: 44 },
+    outdoor: { x: 438, y: 240, w: 104, h: 70 },
+    compressor: { x: 300, y: 322, w: 80, h: 50 },
   };
 
   const zoneAt = new Array<string>(SAMPLES);
@@ -482,6 +528,44 @@ function startAnimation(svg: SVGSVGElement, getState: () => KioskState): AnimRef
     heatDots.push({ el: d, t: Math.random() });
   }
 
+  // Airflow wisps — Energie-style sinusoidal paths blowing rightward from
+  // the grill exit. Each wisp has a main stroke and a wider soft glow.
+  const N_AIR = 5;
+  const airWisps: {
+    el: SVGPathElement;
+    glowEl: SVGPathElement;
+    baseY: number;
+    freq: number;
+    amp: number;
+    phaseOff: number;
+  }[] = [];
+  for (let i = 0; i < N_AIR; i++) {
+    const glow = document.createElementNS(SVG_NS, 'path');
+    glow.setAttribute('fill', 'none');
+    glow.setAttribute('stroke', 'rgba(160,200,235,0.03)');
+    glow.setAttribute('stroke-width', '5');
+    glow.setAttribute('stroke-linecap', 'round');
+    glow.setAttribute('stroke-linejoin', 'round');
+    airLayer.appendChild(glow);
+
+    const wisp = document.createElementNS(SVG_NS, 'path');
+    wisp.setAttribute('fill', 'none');
+    wisp.setAttribute('stroke', 'rgba(180,215,245,0.12)');
+    wisp.setAttribute('stroke-width', '1.3');
+    wisp.setAttribute('stroke-linecap', 'round');
+    wisp.setAttribute('stroke-linejoin', 'round');
+    airLayer.appendChild(wisp);
+
+    airWisps.push({
+      el: wisp,
+      glowEl: glow,
+      baseY: 185 + (i / (N_AIR - 1)) * 180,
+      freq: 0.008 + i * 0.002,
+      amp: 5 + i * 2.5,
+      phaseOff: i * 1.7,
+    });
+  }
+
   let progress = 0;
   let lastTs = performance.now();
   let raf = 0;
@@ -545,7 +629,7 @@ function startAnimation(svg: SVGSVGElement, getState: () => KioskState): AnimRef
     compPiston.setAttribute('r', String(5 + pulse));
 
     const rot = performance.now() * 0.001 * (SPEED / 4) * dir;
-    fanBlades.setAttribute('transform', `translate(535 290) rotate(${rot})`);
+    fanBlades.setAttribute('transform', `translate(490 275) rotate(${rot})`);
   }
 
   function updateHeat(dt: number): void {
@@ -556,12 +640,12 @@ function startAnimation(svg: SVGSVGElement, getState: () => KioskState): AnimRef
     }
     const src =
       mode === 'heizen'
-        ? { from: { x: 660, y: 230, jitter: 30 }, to: { x: 535, y: 290 } }
-        : { from: { x: 140, y: 220, jitter: 40 }, to: { x: 140, y: 331 } };
+        ? { from: { x: 660, y: 230, jitter: 30 }, to: { x: 490, y: 275 } }
+        : { from: { x: 140, y: 240, jitter: 40 }, to: { x: 140, y: 381 } };
     const snk =
       mode === 'heizen'
-        ? { from: { x: 140, y: 331, jitter: 0 }, to: { x: 160, y: 200, jitter: 40 } }
-        : { from: { x: 535, y: 290, jitter: 0 }, to: { x: 660, y: 230, jitter: 30 } };
+        ? { from: { x: 140, y: 381, jitter: 0 }, to: { x: 160, y: 220, jitter: 40 } }
+        : { from: { x: 490, y: 275, jitter: 0 }, to: { x: 660, y: 230, jitter: 30 } };
 
     heatDots.forEach((d, i) => {
       d.t += dt * 0.0006 * (SPEED / 80);
@@ -581,11 +665,47 @@ function startAnimation(svg: SVGSVGElement, getState: () => KioskState): AnimRef
     });
   }
 
+  function updateAirflow(): void {
+    // Sinusoidal wisps emanating from grill exit (x=562) toward right edge
+    // of the wider viewBox (x=850), diverging from fan-center as they travel.
+    const GRILL_EXIT = 562;
+    const END_X = 850;
+    const FAN_CY = 275;
+    const SEGS = 28;
+    const now = performance.now();
+
+    airWisps.forEach((w, i) => {
+      const wispAlpha = 0.1 + 0.05 * Math.sin(now * 0.0008 + i);
+      const glowAlpha = wispAlpha * 0.25;
+      const lw = 1.2 + Math.sin(now * 0.001 + i) * 0.3;
+
+      let d = '';
+      for (let s = 0; s <= SEGS; s++) {
+        const frac = s / SEGS;
+        const x = GRILL_EXIT + (END_X - GRILL_EXIT) * frac;
+        const diverge = frac * frac;
+        const yBase = FAN_CY + (w.baseY - FAN_CY) * (0.3 + 0.7 * diverge);
+        const wave =
+          Math.sin(-now * w.freq + frac * 10 + w.phaseOff) * w.amp * (0.3 + diverge * 0.7);
+        const y = yBase + wave;
+        d += (s === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+      }
+
+      w.el.setAttribute('d', d);
+      w.el.setAttribute('stroke', `rgba(180,215,245,${wispAlpha.toFixed(3)})`);
+      w.el.setAttribute('stroke-width', lw.toFixed(1));
+
+      w.glowEl.setAttribute('d', d);
+      w.glowEl.setAttribute('stroke', `rgba(160,200,235,${glowAlpha.toFixed(3)})`);
+    });
+  }
+
   function frame(ts: number): void {
     const dt = Math.min(50, ts - lastTs);
     lastTs = ts;
     updateParticles(dt);
     updateHeat(dt);
+    updateAirflow();
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);
