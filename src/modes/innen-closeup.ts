@@ -684,8 +684,8 @@ function startExpansionAnim(
         m.r = lerpN(m.r, 2.5, 0.15);
         if (m.x > VX + VW) {
           m.ph = 'wide';
-          m.vx = 1.5 + Math.random() * 1.5;
-          m.vy = (Math.random() - 0.5) * 3.5;
+          m.vx = 2.0 + Math.random() * 2.0;
+          m.vy = (Math.random() - 0.5) * 5;
           m.age = 0;
         }
         ctx.beginPath();
@@ -694,18 +694,38 @@ function startExpansionAnim(
         ctx.fill();
       } else {
         m.age = (m.age ?? 0) + 0.016;
-        m.vx = lerpN(m.vx, 0.9, 0.015);
-        m.vy *= 0.96;
+        m.vx = lerpN(m.vx, 1.2, 0.01);
+        m.vy *= 0.94;
+        // Repel from nearby wide-phase particles so molecules spread out
+        // as they expand into the low-pressure side instead of bunching.
+        for (let j = 0; j < mols.length; j++) {
+          if (j === i || mols[j]!.ph !== 'wide') continue;
+          const dx = m.x - mols[j]!.x;
+          const dy = m.y - mols[j]!.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 22 && dist > 0.5) {
+            const force = 0.3 / dist;
+            m.vx += dx * force;
+            m.vy += dy * force;
+          }
+        }
         m.x += m.vx;
         m.y += m.vy;
-        m.r = lerpN(m.r, 7, 0.025);
+        m.r = lerpN(m.r, 5, 0.02);
+        // Hard-clamp to the low-pressure rectangle so the repel force can't
+        // push particles past the walls. Bounce factor is reduced enough
+        // that stacked repels still settle inside.
         if (m.y - m.r < WIDE_Y + 4) {
           m.y = WIDE_Y + 4 + m.r;
-          m.vy = Math.abs(m.vy) * 0.4;
+          m.vy = Math.abs(m.vy) * 0.3;
         }
         if (m.y + m.r > WIDE_Y + WIDE_H - 4) {
           m.y = WIDE_Y + WIDE_H - 4 - m.r;
-          m.vy = -Math.abs(m.vy) * 0.4;
+          m.vy = -Math.abs(m.vy) * 0.3;
+        }
+        if (m.x - m.r < WIDE_X + 4) {
+          m.x = WIDE_X + 4 + m.r;
+          m.vx = Math.abs(m.vx) * 0.3;
         }
         const coolT = clampN(m.age * 1.5, 0, 1);
         const col =
